@@ -1,103 +1,156 @@
-import React, { useState } from 'react';
-import { ChevronDown, HelpCircle } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Plus } from 'lucide-react';
 import { FAQS } from '../data/promptsData';
-import { playCyberClick } from '../utils/cyberAudio';
+import { useScrollMotion } from '../utils/motion';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function FaqSection() {
+  const { t } = useLanguage();
+  const faqItems = t.faq?.items || FAQS;
   const [openIdx, setOpenIdx] = useState(0);
+  const ref = useRef(null);
+  useScrollMotion(ref);
 
   const toggle = (idx) => {
-    playCyberClick(700, 0.03);
     setOpenIdx(openIdx === idx ? null : idx);
   };
 
   return (
-    <section id="faq" style={{ padding: '6rem 0', position: 'relative' }}>
-      <div className="container" style={{ maxWidth: '900px' }}>
-        
-        {/* Section Header */}
-        <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-          <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 800, color: '#fff', marginBottom: '1rem' }}>
-            Pertanyaan yang Sering Diajukan.
-          </h2>
-          <p style={{ fontSize: '1.05rem', color: 'var(--text-body)', lineHeight: 1.6 }}>
-            Semua hal teknis seputar keselamatan panggung, waktu sewa, dan kustomisasi pertunjukan.
-          </p>
-        </div>
-
-        {/* Accordion List */}
-        <div style={{ display: 'grid', gap: '1rem' }}>
-          {FAQS.map((faq, idx) => {
+    <section id="faq" ref={ref} className="faq" data-bg="#ffffff" aria-labelledby="faq-title">
+      <div className="container faq-inner">
+        <h2 id="faq-title" className="faq-title display" data-split>{t.faq?.title || 'Pertanyaan yang sering diajukan.'}</h2>
+        <div className="faq-list" data-stagger>
+          {faqItems.map((faq, idx) => {
             const isOpen = openIdx === idx;
             return (
-              <div
-                key={idx}
-                className="cyber-card"
-                style={{
-                  border: isOpen ? '1px solid var(--border-accent)' : '1px solid var(--border-subtle)',
-                  background: isOpen ? 'rgba(13, 23, 49, 0.8)' : 'rgba(7, 13, 30, 0.6)',
-                  borderRadius: 'var(--radius-md)',
-                  transition: 'all 0.25s ease'
-                }}
-              >
-                <h3 style={{ margin: 0, font: 'inherit' }}>
-                  <button
-                    type="button"
-                    onClick={() => toggle(idx)}
-                    id={`faq-q-${idx}`}
-                    aria-expanded={isOpen}
-                    aria-controls={`faq-a-${idx}`}
-                    style={{
-                      width: '100%',
-                      padding: '1.35rem 1.5rem',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      background: 'none',
-                      border: 'none',
-                      textAlign: 'left',
-                      color: '#fff',
-                      fontFamily: 'var(--font-display)',
-                      fontSize: '1.05rem',
-                      fontWeight: 700,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <HelpCircle size={18} color="var(--accent)" style={{ flexShrink: 0 }} aria-hidden="true" />
-                      <span>{faq.q}</span>
-                    </span>
-                    <ChevronDown
-                      size={18}
-                      color="var(--accent)"
-                      aria-hidden="true"
-                      style={{
-                        transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                        transition: 'transform 0.3s ease',
-                        flexShrink: 0,
-                        marginLeft: '1rem'
-                      }}
-                    />
+              <div key={faq.q} className={`faq-item${isOpen ? ' is-open' : ''}`}>
+                <h3>
+                  <button type="button" onClick={() => toggle(idx)} id={`faq-q-${idx}`} aria-expanded={isOpen} aria-controls={`faq-a-${idx}`}>
+                    <span>{faq.q}</span>
+                    <Plus size={24} aria-hidden="true" className="faq-icon" strokeWidth={1.5} />
                   </button>
                 </h3>
-
-                <div
-                  id={`faq-a-${idx}`}
-                  role="region"
-                  aria-labelledby={`faq-q-${idx}`}
-                  hidden={!isOpen}
-                  style={{ padding: '0 1.5rem 1.5rem 1.5rem', color: 'var(--text-body)', lineHeight: 1.6, fontSize: '0.95rem' }}
-                >
-                  <div style={{ paddingTop: '0.75rem', borderTop: '1px solid var(--border-subtle)' }}>
-                    {faq.a}
+                <div className="faq-answer-wrap" inert={!isOpen}>
+                  <div id={`faq-a-${idx}`} role="region" aria-labelledby={`faq-q-${idx}`} className="faq-answer">
+                    <p>{faq.a}</p>
                   </div>
                 </div>
               </div>
             );
           })}
         </div>
-
       </div>
+      <style>{`
+        .faq {
+          padding: 8rem 0;
+        }
+        .faq-inner {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1.8fr);
+          gap: clamp(2.5rem, 5vw, 4.5rem);
+          align-items: start;
+        }
+        .faq-title {
+          grid-column: 1 / -1;
+          max-width: 16ch;
+          font-size: clamp(3.5rem, 8vw, 9rem);
+          color: var(--text-heading);
+        }
+        .faq-list {
+          grid-column: 2;
+          border-top: var(--hairline);
+        }
+        .faq-item {
+          border-bottom: var(--hairline);
+          transition: background-color 0.4s ease;
+        }
+        .faq-item:hover {
+          background-color: var(--accent-subtle);
+        }
+        .faq-item h3 {
+          margin: 0;
+          font: inherit;
+        }
+        .faq-item button {
+          width: 100%;
+          min-height: 80px;
+          padding: 1.5rem 1rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 1.5rem;
+          background: none;
+          border: none;
+          text-align: left;
+          color: var(--text-heading);
+          font-family: var(--font-display);
+          font-size: clamp(1.1rem, 1.5vw, 1.3rem);
+          font-weight: 700;
+          letter-spacing: -0.02em;
+          cursor: pointer;
+          transition: color 0.3s ease;
+        }
+        .faq-item:hover button {
+          color: var(--color-blue);
+        }
+        .faq-icon {
+          flex-shrink: 0;
+          color: var(--text-muted);
+          transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease;
+        }
+        .faq-item:hover .faq-icon {
+          color: var(--color-blue);
+        }
+        .faq-item.is-open .faq-icon {
+          transform: rotate(45deg);
+          color: var(--color-blue);
+        }
+        .faq-answer-wrap {
+          display: grid;
+          grid-template-rows: 0fr;
+          transition: grid-template-rows 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .faq-item.is-open .faq-answer-wrap { grid-template-rows: 1fr; }
+        .faq-answer {
+          min-height: 0;
+          overflow: hidden;
+        }
+        .faq-answer p {
+          padding: 0 4rem 2rem 1rem;
+          line-height: 1.7;
+          font-size: 1.05rem;
+          color: var(--text-body);
+          opacity: 0;
+          filter: blur(8px);
+          transform: translateY(-8px);
+          transition: opacity 0.4s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .faq-item.is-open .faq-answer p {
+          opacity: 1;
+          transform: none;
+          filter: blur(0px);
+          transition-delay: 0.1s;
+        }
+        @media (max-width: 900px) {
+          .faq {
+            padding: 5rem 0;
+          }
+          .faq-inner {
+            grid-template-columns: 1fr;
+            gap: 2.5rem;
+          }
+          .faq-list {
+            grid-column: 1;
+          }
+          .faq-item button {
+            font-size: 1.15rem;
+            padding: 1.25rem 0;
+          }
+          .faq-answer p {
+            padding: 0 0 1.5rem 0;
+          }
+        }
+      `}</style>
     </section>
   );
 }

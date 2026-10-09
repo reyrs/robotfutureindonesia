@@ -1,0 +1,1368 @@
+<?xml version="1.0" ?>
+<!-- =================================================================================== -->
+<!-- |    This document was expanded from xacro/robot.xacro (A2 URDF)           | -->
+<!-- |    EDITING THIS FILE BY HAND IS NOT RECOMMENDED                                 | -->
+<!-- =================================================================================== -->
+<!-- =================================================================================== -->
+<!-- |    Complete Robot Description for Agibot A2                                     | -->
+<!-- |    This file includes the base robot structure and both arms                    | -->
+<!-- =================================================================================== -->
+<robot name="Agibot A2">
+ <link name="base_link">
+  <inertial>
+   <origin xyz="-0.07088950 -0.00016512 0.16138088"/>
+   <mass value="18.89945962"/>
+   <inertia ixx="0.59376016" ixy="0.00015891" ixz="0.00353796" iyy="0.55503329" iyz="-0.00043902" izz="0.18455985"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/body/visual/body.obj"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/body/collision/body.stl"/>
+   </geometry>
+  </collision>
+ </link>
+ <!-- Hip roll -->
+ <link name="left_hip_roll">
+  <inertial>
+   <origin xyz="0.00011252 0.02130615 -0.07465143"/>
+   <mass value="2.39059365"/>
+   <inertia ixx="0.00381223" ixy="-2.53e-06" ixz="4.33e-06" iyy="0.00368166" iyz="0.00019809" izz="0.00334373"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/leg/visual/hip_roll.obj"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/leg/collision/hip_roll.stl"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="left_hip_roll" type="revolute">
+  <origin rpy="0.7854 0 1.5708" xyz="-0.0808 0.105 -0.0652"/>
+  <parent link="base_link"/>
+  <child link="left_hip_roll"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="120" lower="-0.698" upper="0.698" velocity="12"/>
+ </joint>
+ <!-- Hip yaw -->
+ <link name="left_hip_yaw">
+  <inertial>
+   <origin xyz="-0.00012288 0.0157646 0.10828703"/>
+   <mass value="3.79911511"/>
+   <inertia ixx="0.00941292" ixy="7.66e-06" ixz="0.00000238" iyy="0.01442888" iyz="-0.00055185" izz="0.00698406"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/leg/visual/hip_yaw.obj" scale="1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/leg/collision/hip_yaw.stl" scale="1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="left_hip_yaw" type="revolute">
+  <origin rpy="1.5708 -1.5708 0" xyz="0 -0.017 -0.0682"/>
+  <parent link="left_hip_roll"/>
+  <child link="left_hip_yaw"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="120" lower="-1.57" upper="1.57" velocity="12"/>
+ </joint>
+ <!-- Hip pitch -->
+ <link name="left_hip_pitch">
+  <inertial>
+   <origin xyz="-0.06943423 0.00469099 0.02228242"/>
+   <mass value="5.92461880"/>
+   <inertia ixx="0.01406779" ixy="0.00370132" ixz="-0.00808512" iyy="0.08875802" iyz="0.00067639" izz="0.09356940"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/leg/visual/hip_pitch.obj" scale="1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/leg/collision/hip_pitch.stl" scale="1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="left_hip_pitch" type="revolute">
+  <origin rpy="1.5708 0.7854 0" xyz="0 -0.02 0.1205"/>
+  <parent link="left_hip_yaw"/>
+  <child link="left_hip_pitch"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="140" lower="-1.919862144" upper="0.78539815" velocity="12"/>
+ </joint>
+ <!-- Tarsus -->
+ <link name="left_tarsus">
+  <inertial>
+   <origin xyz="-0.17711952 0.00417209 0.00013325"/>
+   <mass value="3.02166726"/>
+   <inertia ixx="0.00286094" ixy="-0.00112212" ixz="4.708e-05" iyy="0.02537518" iyz="1.928e-05" izz="0.02674320"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/leg/visual/tarsus.obj" scale="1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/leg/collision/tarsus.stl" scale="1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="left_tarsus" type="revolute">
+  <origin xyz="-0.34 0 0"/>
+  <parent link="left_hip_pitch"/>
+  <child link="left_tarsus"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="140" lower="-0.087266461" upper="2.443460911" velocity="12"/>
+ </joint>
+ <!-- Toe pitch -->
+ <link name="left_toe_pitch">
+  <inertial>
+   <mass value="0.08772028"/>
+   <inertia ixx="0.00001572" ixy="0.0" ixz="0.0" iyy="0.00001128" iyz="0.0" izz="0.00001148"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/leg/visual/toe_pitch.obj"/>
+   </geometry>
+  </visual>
+ </link>
+ <joint name="left_toe_pitch" type="revolute">
+  <origin xyz="-0.377 0 0"/>
+  <parent link="left_tarsus"/>
+  <child link="left_toe_pitch"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="50" lower="-1.047197533" upper="0.523598767" velocity="12"/>
+ </joint>
+ <!-- Toe roll -->
+ <link name="left_toe_roll">
+  <inertial>
+   <origin xyz="-0.03898340 2.335e-05 0.03167314"/>
+   <mass value="1.21058213"/>
+   <inertia ixx="0.00701152" ixy="-2.1e-07" ixz="0.00015476" iyy="0.00653210" iyz="-2.7e-06" izz="0.00112114"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/leg/visual/toe_roll.obj"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/leg/collision/toe_roll.stl"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="left_toe_roll" type="revolute">
+  <origin rpy="-1.5707963 0 0" xyz="0 0 0"/>
+  <parent link="left_toe_pitch"/>
+  <child link="left_toe_roll"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="50" lower="-0.488692182" upper="0.488692182" velocity="12"/>
+ </joint>
+ <!-- Hip roll -->
+ <link name="right_hip_roll">
+  <inertial>
+   <origin xyz="-0.00011252 -0.02130615 -0.07465143"/>
+   <mass value="2.39059365"/>
+   <inertia ixx="0.00381223" ixy="2.53e-06" ixz="-4.33e-06" iyy="0.00368166" iyz="0.00019809" izz="0.00334373"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/leg/visual/hip_roll.obj"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/leg/collision/hip_roll.stl"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="right_hip_roll" type="revolute">
+  <origin rpy="0.7854 0 1.5708" xyz="-0.0808 -0.105 -0.0652"/>
+  <parent link="base_link"/>
+  <child link="right_hip_roll"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="120" lower="-0.698" upper="0.698" velocity="12"/>
+ </joint>
+ <!-- Hip yaw -->
+ <link name="right_hip_yaw">
+  <inertial>
+   <origin xyz="-0.00012288 -0.0157646 0.10828703"/>
+   <mass value="3.79911511"/>
+   <inertia ixx="0.00941292" ixy="-7.66e-06" ixz="0.00000238" iyy="0.01442888" iyz="0.00055185" izz="0.00698406"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/leg/visual/hip_yaw.obj" scale="1 -1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/leg/collision/hip_yaw.stl" scale="1 -1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="right_hip_yaw" type="revolute">
+  <origin rpy="1.5708 -1.5708 0" xyz="0 -0.017 -0.0682"/>
+  <parent link="right_hip_roll"/>
+  <child link="right_hip_yaw"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="120" lower="-1.57" upper="1.57" velocity="12"/>
+ </joint>
+ <!-- Hip pitch -->
+ <link name="right_hip_pitch">
+  <inertial>
+   <origin xyz="-0.06943423 0.00469099 -0.02228242"/>
+   <mass value="5.92461880"/>
+   <inertia ixx="0.01406779" ixy="0.00370132" ixz="0.00808512" iyy="0.08875802" iyz="-0.00067639" izz="0.09356940"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/leg/visual/hip_pitch.obj" scale="1 1 -1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/leg/collision/hip_pitch.stl" scale="1 1 -1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="right_hip_pitch" type="revolute">
+  <origin rpy="1.5708 0.7854 0" xyz="0 0.02 0.1205"/>
+  <parent link="right_hip_yaw"/>
+  <child link="right_hip_pitch"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="140" lower="-1.919862144" upper="0.78539815" velocity="12"/>
+ </joint>
+ <!-- Tarsus -->
+ <link name="right_tarsus">
+  <inertial>
+   <origin xyz="-0.17711952 0.00417209 -0.00013325"/>
+   <mass value="3.02166726"/>
+   <inertia ixx="0.00286094" ixy="-0.00112212" ixz="-4.708e-05" iyy="0.02537518" iyz="-1.928e-05" izz="0.02674320"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/leg/visual/tarsus.obj" scale="1 1 -1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/leg/collision/tarsus.stl" scale="1 1 -1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="right_tarsus" type="revolute">
+  <origin xyz="-0.34 0 0"/>
+  <parent link="right_hip_pitch"/>
+  <child link="right_tarsus"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="140" lower="-0.087266461" upper="2.443460911" velocity="12"/>
+ </joint>
+ <!-- Toe pitch -->
+ <link name="right_toe_pitch">
+  <inertial>
+   <mass value="0.08772028"/>
+   <inertia ixx="0.00001572" ixy="0.0" ixz="0.0" iyy="0.00001128" iyz="0.0" izz="0.00001148"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/leg/visual/toe_pitch.obj"/>
+   </geometry>
+  </visual>
+ </link>
+ <joint name="right_toe_pitch" type="revolute">
+  <origin xyz="-0.377 0 0"/>
+  <parent link="right_tarsus"/>
+  <child link="right_toe_pitch"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="50" lower="-1.047197533" upper="0.523598767" velocity="12"/>
+ </joint>
+ <!-- Toe roll -->
+ <link name="right_toe_roll">
+  <inertial>
+   <origin xyz="-0.03898340 -2.335e-05 0.03167314"/>
+   <mass value="1.21058213"/>
+   <inertia ixx="0.00701152" ixy="2.1e-07" ixz="0.00015476" iyy="0.00653210" iyz="2.7e-06" izz="0.00112114"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/leg/visual/toe_roll.obj"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/leg/collision/toe_roll.stl"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="right_toe_roll" type="revolute">
+  <origin rpy="-1.5707963 0 0" xyz="0 0 0"/>
+  <parent link="right_toe_pitch"/>
+  <child link="right_toe_roll"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="50" lower="-0.488692182" upper="0.488692182" velocity="12"/>
+ </joint>
+ <!-- Arm base link -->
+ <link name="left_arm_base"/>
+ <joint name="left_arm_base_joint" type="fixed">
+  <origin rpy="1.5707963  0 0" xyz="-0.03779 0 0.3421"/>
+  <parent link="base_link"/>
+  <child link="left_arm_base"/>
+ </joint>
+ <!-- Arm link 01 -->
+ <link name="left_arm_link01">
+  <inertial>
+   <origin xyz="-0.002330 0.008782 0.03287"/>
+   <mass value="0.276944"/>
+   <inertia ixx="0.000595" ixy="-0.000006" ixz="-2e-06" iyy="0.000381" iyz="5.3e-05" izz="0.000542"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/visual/link1.obj" scale="1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/collision/link1.stl" scale="1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="left_arm_joint1" type="revolute">
+  <origin rpy="0 0 -1.5707963" xyz="-0.0 0.0 -0.191"/>
+  <parent link="left_arm_base"/>
+  <child link="left_arm_link01"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="0" lower="-2.967" upper="2.967" velocity="0"/>
+ </joint>
+ <!-- Arm link 02 -->
+ <link name="left_arm_link02">
+  <inertial>
+   <origin xyz="-0.000451 -0.051682 -0.001084"/>
+   <mass value="2.852114"/>
+   <inertia ixx="0.011984" ixy="3.9e-05" ixz="0.000003" iyy="0.002880" iyz="0.00014" izz="0.011709"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/visual/link2.obj" scale="1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/collision/link2.stl" scale="1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="left_arm_joint2" type="revolute">
+  <origin rpy="1.5707963 0 0" xyz="0 0 -0.0"/>
+  <parent link="left_arm_link01"/>
+  <child link="left_arm_link02"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="0" lower="-0.523598767" upper="1.658062761" velocity="0"/>
+ </joint>
+ <!-- Arm link 03 -->
+ <link name="left_arm_link03">
+  <inertial>
+   <origin xyz="-0.000673 0.001065 0.079222"/>
+   <mass value="1.310295"/>
+   <inertia ixx="0.002030" ixy="-0.000008" ixz="5e-06" iyy="0.002186" iyz="1.8e-05" izz="0.001189"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/visual/link3.obj" scale="1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/collision/link3.stl" scale="1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="left_arm_joint3" type="revolute">
+  <origin rpy="1.5707963 0 0" xyz="0 -0.154 0"/>
+  <parent link="left_arm_link02"/>
+  <child link="left_arm_link03"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="0" lower="-2.967" upper="2.967" velocity="0"/>
+ </joint>
+ <!-- Arm link 04 -->
+ <link name="left_arm_link04">
+  <inertial>
+   <origin xyz="0.000273 -0.066853 -0.007408"/>
+   <mass value="0.677343"/>
+   <inertia ixx="0.000893" ixy="-1e-06" ixz="-0.000002" iyy="0.000508" iyz="0.000238" izz="0.000767"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/visual/link4.obj" scale="1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/collision/link4.stl" scale="1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="left_arm_joint4" type="revolute">
+  <origin rpy="-1.5707963  0  1.5707963" xyz="0 0 0.093"/>
+  <parent link="left_arm_link03"/>
+  <child link="left_arm_link04"/>
+  <axis xyz="0 0 -1"/>
+  <limit effort="0" lower="0" upper="2.094395067" velocity="0"/>
+ </joint>
+ <!-- Arm link 05 -->
+ <link name="left_arm_link05">
+  <inertial>
+   <origin xyz="-0.001962 -0.000002 0.071786"/>
+   <mass value="0.260886"/>
+   <inertia ixx="0.000638" ixy="0.000000" ixz="1.5e-05" iyy="0.000618" iyz="0.000000" izz="0.000229"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/visual/link5.obj" scale="1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/collision/link5.stl" scale="1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="left_arm_joint5" type="revolute">
+  <origin rpy="1.5707963 0 0" xyz="0  -0.103 0.0"/>
+  <parent link="left_arm_link04"/>
+  <child link="left_arm_link05"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="0" lower="-2.87979" upper="2.87979" velocity="0.0"/>
+ </joint>
+ <!-- Arm link 06 -->
+ <link name="left_arm_link06">
+  <inertial>
+   <origin xyz="0.00018011 -0.00021701 0.00000000"/>
+   <mass value="0.02504627"/>
+   <inertia ixx="0.00000197" ixy="0.00000000" ixz="0.00000000" iyy="0.00000173" iyz="0.00000000" izz="0.00000071"/>
+  </inertial>
+  <visual name="">
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/visual/link6.obj"/>
+   </geometry>
+  </visual>
+ </link>
+ <joint name="left_arm_joint6" type="revolute">
+  <origin rpy="-1.5707963 1.5707963 0" xyz="-0.01 0 0.1595"/>
+  <parent link="left_arm_link05"/>
+  <child link="left_arm_link06"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="0" lower="-0.785398" upper="0.785398" velocity="0.0"/>
+ </joint>
+ <!-- Arm link 07 -->
+ <link name="left_arm_link07">
+  <inertial>
+   <origin xyz="-0.01211757 -0.00009712 0.00886324"/>
+   <mass value="0.05050219"/>
+   <inertia ixx="0.00000828" ixy="6e-08" ixz="-1.79e-06" iyy="0.00001140" iyz="0.00000004" izz="0.00001294"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/visual/link7.obj" scale="1 1 1"/>
+   </geometry>
+  </visual>
+ </link>
+ <joint name="left_arm_joint7" type="revolute">
+  <origin rpy="1.5707963 0 0" xyz="0 0 0"/>
+  <parent link="left_arm_link06"/>
+  <child link="left_arm_link07"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="0" lower="-0.5236" upper="0.5236" velocity="0"/>
+ </joint>
+ <!-- Hand connection joint -->
+ <joint name="left_arm_joint07_fixed" type="fixed">
+  <origin rpy="1.5707963 0 -1.5707963" xyz="0 0 0"/>
+  <parent link="left_arm_link07"/>
+  <child link="left_hand"/>
+ </joint>
+ <!-- Hand link -->
+ <link name="left_hand">
+  <inertial>
+   <origin xyz="-0.00174346841701916 0.00527579194314928 0.0630645733021228"/>
+   <mass value="0.153951635222705"/>
+   <inertia ixx="8.73156029524248e-05" ixy="2.76454788715318e-07" ixz="-6.56394653650542e-07" iyy="0.00013139692405234" iyz="2.87478350015867e-06" izz="6.85856479957296e-05"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/paw.obj" scale="1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/paw.stl" scale="1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <!-- Thumb swing -->
+ <link name="L_thumb_swing">
+  <inertial>
+   <origin xyz="-0.00794385183139725 -0.000525120612119151 0.00647353069427367"/>
+   <mass value="0.00344766519929713"/>
+   <inertia ixx="9.46681111469513e-08" ixy="-2.82870154716105e-09" ixz="6.48803833821274e-10" iyy="1.37273777260403e-07" iyz="4.31486298309418e-11" izz="9.49138662594884e-08"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/thumb_swing.obj" scale="1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_thumb_swing_hull.stl" scale="1 -1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="L_thumb_swing_joint" type="revolute">
+  <origin xyz="-0.029178 -0.01525 0.0384"/>
+  <parent link="left_hand"/>
+  <child link="L_thumb_swing"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="1" lower="0" upper="2.286" velocity="100"/>
+ </joint>
+ <!-- Thumb 1 -->
+ <link name="L_thumb_1">
+  <inertial>
+   <origin xyz="0.0259002099345081 0.0127439796878742 1.99493196570838e-05"/>
+   <mass value="0.0221480762523199"/>
+   <inertia ixx="3.31629342056679e-06" ixy="-8.26036894806839e-07" ixz="5.55467469886505e-10" iyy="3.39227446692523e-06" iyz="2.74467395508138e-09" izz="5.78826252617142e-06"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/thumb_1.obj" scale="1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_thumb_1_hull.stl" scale="1 1 -1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="L_thumb_joint" type="revolute">
+  <origin rpy="1.5708 0 3.0756" xyz="-0.013367 0.00088357 -0.0052468"/>
+  <parent link="L_thumb_swing"/>
+  <child link="L_thumb_1"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="1" lower="0" upper="0.78" velocity="100"/>
+ </joint>
+ <!-- Thumb 2 -->
+ <link name="L_thumb_2">
+  <inertial>
+   <origin xyz="0.0112938280283933 0.00190048762153883 -0.00768932284017045"/>
+   <mass value="0.00380031199387229"/>
+   <inertia ixx="4.33768382054372e-07" ixy="-3.01457326686904e-08" ixz="-2.51640808750991e-11" iyy="3.41487853815651e-07" iyz="-8.87078510861614e-11" izz="4.77629558482899e-07"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/thumb_2.obj" scale="1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_thumb_2_hull.stl" scale="1 1 -1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="L_thumb_2_joint" type="revolute">
+  <origin xyz="0.0389415822724812 0.0379042246431505 -0.00770000000000043"/>
+  <parent link="L_thumb_1"/>
+  <child link="L_thumb_2"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="1" lower="0" upper="0.9144" velocity="100"/>
+  <mimic joint="L_thumb_joint" multiplier="0.40" offset="0"/>
+ </joint>
+ <!-- Thumb 3 -->
+ <link name="L_thumb_3">
+  <inertial>
+   <origin xyz="0.00856534554797862 0.00586022128255342 -0.00530182283153385"/>
+   <mass value="0.0067706894584641"/>
+   <inertia ixx="4.15501197420746e-07" ixy="-1.25284733421831e-07" ixz="1.14020106815917e-10" iyy="2.49677035533967e-07" iyz="1.89120892374144e-10" izz="4.96219470794644e-07"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/thumb_3.obj" scale="1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_thumb_3_hull.stl" scale="1 1 -1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="L_thumb_3_joint" type="revolute">
+  <origin xyz="0.01728 0.014743 0.0024"/>
+  <parent link="L_thumb_2"/>
+  <child link="L_thumb_3"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="1" lower="0" upper="1.3716" velocity="100"/>
+  <mimic joint="L_thumb_joint" multiplier="0.60" offset="0"/>
+ </joint>
+ <!-- Index 1 -->
+ <link name="L_index_1">
+  <inertial>
+   <origin xyz="0.00224105284932037 0.012077244969504 -0.0060501936211354"/>
+   <mass value="0.00439457695368253"/>
+   <inertia ixx="6.7083586478962e-07" ixy="6.24488990875019e-09" ixz="-3.08577901734797e-12" iyy="2.67077182124417e-07" iyz="6.36376851728619e-12" izz="6.64566137309628e-07"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/index_1.obj" scale="1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_index_1_hull.stl" scale="-1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="L_index_joint" type="revolute">
+  <origin rpy="1.6319 0 -1.5708" xyz="-0.034645 0.0059953 0.11967"/>
+  <parent link="left_hand"/>
+  <child link="L_index_1"/>
+  <axis xyz="0 0 -1"/>
+  <limit effort="1" lower="0" upper="1.7" velocity="100"/>
+ </joint>
+ <!-- Index 2 -->
+ <link name="L_index_2">
+  <inertial>
+   <origin xyz="0.00267181156648408 0.0187445889538955 -0.00504998556104182"/>
+   <mass value="0.00571203807044643"/>
+   <inertia ixx="8.55148442316881e-07" ixy="-8.71729684204069e-08" ixz="8.24415168858219e-14" iyy="1.37439550017429e-07" iyz="-2.39445035228549e-12" izz="8.7133999943214e-07"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/index_2.obj" scale="1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_index_2_hull.stl" scale="-1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="L_index_2_joint" type="revolute">
+  <origin xyz="-0.00025731 0.032131 -0.001"/>
+  <parent link="L_index_1"/>
+  <child link="L_index_2"/>
+  <axis xyz="0 0 -1"/>
+  <limit effort="1" lower="0" upper="1.7" velocity="100"/>
+  <mimic joint="L_index_joint" multiplier="1" offset="0"/>
+ </joint>
+ <!-- Middle 1 -->
+ <link name="L_middle_1">
+  <inertial>
+   <origin xyz="0.00224109922728143 0.0120773004987843 -0.00605026659163534"/>
+   <mass value="0.00439459313596441"/>
+   <inertia ixx="6.70837166910088e-07" ixy="-6.24455169745287e-09" ixz="3.25321014718543e-12" iyy="2.67075608382375e-07" iyz="7.72285454063169e-12" izz="6.64566599226699e-07"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/index_1.obj" scale="1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_index_1_hull.stl" scale="-1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="L_middle_joint" type="revolute">
+  <origin rpy="1.5708 0 -1.5708" xyz="-0.014728 0.0059953 0.1205"/>
+  <parent link="left_hand"/>
+  <child link="L_middle_1"/>
+  <axis xyz="0 0 -1"/>
+  <limit effort="1" lower="0" upper="1.7" velocity="100"/>
+ </joint>
+ <!-- Middle 2 -->
+ <link name="L_middle_2">
+  <inertial>
+   <origin xyz="0.00298222684069903 0.0208035344929268 -0.00505001299185808"/>
+   <mass value="0.00621146132075292"/>
+   <inertia ixx="1.14490560231061e-06" ixy="-9.72401476943198e-08" ixz="-1.3517205790896e-13" iyy="1.43751808502962e-07" iyz="-2.47497784308553e-12" izz="1.15530613342501e-06"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/middle_2.obj" scale="1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_middle_2_hull.stl" scale="-1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="L_middle_2_joint" type="revolute">
+  <origin xyz="-0.000257313524408706 0.0321313914917268 -0.000999999999997433"/>
+  <parent link="L_middle_1"/>
+  <child link="L_middle_2"/>
+  <axis xyz="0 0 -1"/>
+  <limit effort="1" lower="0" upper="1.7" velocity="100"/>
+  <mimic joint="L_middle_joint" multiplier="1" offset="0"/>
+ </joint>
+ <!-- Ring 1 -->
+ <link name="L_ring_1">
+  <inertial>
+   <origin xyz="0.00224111083051005 0.0120773228749342 -0.00605025463459374"/>
+   <mass value="0.00439459971330683"/>
+   <inertia ixx="6.70838404636804e-07" ixy="6.24505446614477e-09" ixz="3.11377919594888e-12" iyy="2.67075452784363e-07" iyz="6.97432649840291e-12" izz="6.64567590491197e-07"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/index_1.obj" scale="1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_index_1_hull.stl" scale="-1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="L_ring_joint" type="revolute">
+  <origin rpy="1.5184 0 -1.5708" xyz="0.0060088 0.0059953 0.12031"/>
+  <parent link="left_hand"/>
+  <child link="L_ring_1"/>
+  <axis xyz="0 0 -1"/>
+  <limit effort="1" lower="0" upper="1.7" velocity="100"/>
+ </joint>
+ <!-- Ring 2 -->
+ <link name="L_ring_2">
+  <inertial>
+   <origin xyz="0.00298222724294862 0.0208035302665959 -0.00505000729887283"/>
+   <mass value="0.0062114646816875"/>
+   <inertia ixx="1.14490597705472e-06" ixy="9.724016633507e-08" ixz="1.8724939827074e-14" iyy="1.43751909738487e-07" iyz="-2.55418863081498e-12" izz="1.15530647485239e-06"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/middle_2.obj" scale="1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_middle_2_hull.stl" scale="-1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="L_ring_2_joint" type="revolute">
+  <origin xyz="-0.00025731 0.032131 -0.001"/>
+  <parent link="L_ring_1"/>
+  <child link="L_ring_2"/>
+  <axis xyz="0 0 -1"/>
+  <limit effort="1" lower="0" upper="1.7" velocity="100"/>
+  <mimic joint="L_ring_joint" multiplier="1" offset="0"/>
+ </joint>
+ <!-- Pinky 1 -->
+ <link name="L_pinky_1">
+  <inertial>
+   <origin xyz="0.00224116685703836 0.0120774556144769 -0.00605021177667593"/>
+   <mass value="0.00439465496713926"/>
+   <inertia ixx="6.70846058569314e-07" ixy="-6.24765025269437e-09" ixz="-2.14363990209694e-12" iyy="2.67077034128326e-07" iyz="4.49364771164151e-12" izz="6.64575163698131e-07"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/index_1.obj" scale="1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_index_1_hull.stl" scale="-1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="L_pinky_joint" type="revolute">
+  <origin rpy="1.4661 0 -1.5708" xyz="0.026254 0.0059953 0.11901"/>
+  <parent link="left_hand"/>
+  <child link="L_pinky_1"/>
+  <axis xyz="0 0 -1"/>
+  <limit effort="1" lower="0" upper="1.7" velocity="100"/>
+ </joint>
+ <!-- Pinky 2 -->
+ <link name="L_pinky_2">
+  <inertial>
+   <origin xyz="0.00379562052007763 0.0143619415198121 -0.00504990649038004"/>
+   <mass value="0.00441618939121693"/>
+   <inertia ixx="4.4165258349127e-07" ixy="2.35241296174338e-08" ixz="-1.03160129872049e-12" iyy="9.72293330312645e-08" iyz="3.91885258086726e-12" izz="4.50179231370321e-07"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/pinky_2.obj" scale="1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_pinky_2_hull.stl" scale="-1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="L_pinky_2_joint" type="revolute">
+  <origin xyz="-0.00025731 0.032131 -0.001"/>
+  <parent link="L_pinky_1"/>
+  <child link="L_pinky_2"/>
+  <axis xyz="0 0 -1"/>
+  <limit effort="1" lower="0" upper="1.7" velocity="100"/>
+  <mimic joint="L_pinky_joint" multiplier="1" offset="0"/>
+ </joint>
+ <!-- Arm base link -->
+ <link name="right_arm_base"/>
+ <joint name="right_arm_base_joint" type="fixed">
+  <origin rpy="1.5707963  0 0" xyz="-0.03779 0 0.3421"/>
+  <parent link="base_link"/>
+  <child link="right_arm_base"/>
+ </joint>
+ <!-- Arm link 01 -->
+ <link name="right_arm_link01">
+  <inertial>
+   <origin xyz="-0.002330 0.008782 -0.03287"/>
+   <mass value="0.276944"/>
+   <inertia ixx="0.000595" ixy="-0.000006" ixz="2e-06" iyy="0.000381" iyz="-5.3e-05" izz="0.000542"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/visual/link1.obj" scale="1 1 -1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/collision/link1.stl" scale="1 1 -1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="right_arm_joint1" type="revolute">
+  <origin rpy="0 0 -1.5707963" xyz="-0.0 0.0 0.191"/>
+  <parent link="right_arm_base"/>
+  <child link="right_arm_link01"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="0" lower="-2.967" upper="2.967" velocity="0"/>
+ </joint>
+ <!-- Arm link 02 -->
+ <link name="right_arm_link02">
+  <inertial>
+   <origin xyz="-0.000451 0.051682 -0.001084"/>
+   <mass value="2.852114"/>
+   <inertia ixx="0.011984" ixy="-3.9e-05" ixz="0.000003" iyy="0.002880" iyz="-0.00014" izz="0.011709"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/visual/link2.obj" scale="1 -1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/collision/link2.stl" scale="1 -1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="right_arm_joint2" type="revolute">
+  <origin rpy="1.5707963 0 0" xyz="0 0 -0.0"/>
+  <parent link="right_arm_link01"/>
+  <child link="right_arm_link02"/>
+  <axis xyz="0 0 -1"/>
+  <limit effort="0" lower="-0.523598767" upper="1.658062761" velocity="0"/>
+ </joint>
+ <!-- Arm link 03 -->
+ <link name="right_arm_link03">
+  <inertial>
+   <origin xyz="-0.000673 0.001065 -0.079222"/>
+   <mass value="1.310295"/>
+   <inertia ixx="0.002030" ixy="-0.000008" ixz="-5e-06" iyy="0.002186" iyz="-1.8e-05" izz="0.001189"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/visual/link3.obj" scale="1 1 -1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/collision/link3.stl" scale="1 1 -1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="right_arm_joint3" type="revolute">
+  <origin rpy="1.5707963 0 0" xyz="0 0.154 0"/>
+  <parent link="right_arm_link02"/>
+  <child link="right_arm_link03"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="0" lower="-2.967" upper="2.967" velocity="0"/>
+ </joint>
+ <!-- Arm link 04 -->
+ <link name="right_arm_link04">
+  <inertial>
+   <origin xyz="0.000273 0.066853 -0.007408"/>
+   <mass value="0.677343"/>
+   <inertia ixx="0.000893" ixy="1e-06" ixz="-0.000002" iyy="0.000508" iyz="-0.000238" izz="0.000767"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/visual/link4.obj" scale="1 -1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/collision/link4.stl" scale="1 -1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="right_arm_joint4" type="revolute">
+  <origin rpy="-1.5707963  0  1.5707963" xyz="0 0 -0.093"/>
+  <parent link="right_arm_link03"/>
+  <child link="right_arm_link04"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="0" lower="0" upper="2.094395067" velocity="0"/>
+ </joint>
+ <!-- Arm link 05 -->
+ <link name="right_arm_link05">
+  <inertial>
+   <origin xyz="-0.001962 -0.000002 -0.071786"/>
+   <mass value="0.260886"/>
+   <inertia ixx="0.000638" ixy="0.000000" ixz="-1.5e-05" iyy="0.000618" iyz="0.000000" izz="0.000229"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/visual/link5.obj" scale="1 1 -1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/collision/link5.stl" scale="1 1 -1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="right_arm_joint5" type="revolute">
+  <origin rpy="1.5707963 0 0" xyz="0  0.103 0.0"/>
+  <parent link="right_arm_link04"/>
+  <child link="right_arm_link05"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="0" lower="-2.87979" upper="2.87979" velocity="0.0"/>
+ </joint>
+ <!-- Arm link 06 -->
+ <link name="right_arm_link06">
+  <inertial>
+   <origin xyz="0.00018011 -0.00021701 0.00000000"/>
+   <mass value="0.02504627"/>
+   <inertia ixx="0.00000197" ixy="0.00000000" ixz="0.00000000" iyy="0.00000173" iyz="0.00000000" izz="0.00000071"/>
+  </inertial>
+  <visual name="">
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/visual/link6.obj"/>
+   </geometry>
+  </visual>
+ </link>
+ <joint name="right_arm_joint6" type="revolute">
+  <origin rpy="-1.5707963 1.5707963 0" xyz="-0.01 0 -0.1595"/>
+  <parent link="right_arm_link05"/>
+  <child link="right_arm_link06"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="0" lower="-0.785398" upper="0.785398" velocity="0.0"/>
+ </joint>
+ <!-- Arm link 07 -->
+ <link name="right_arm_link07">
+  <inertial>
+   <origin xyz="0.01211757 -0.00009712 0.00886324"/>
+   <mass value="0.05050219"/>
+   <inertia ixx="0.00000828" ixy="-6e-08" ixz="1.79e-06" iyy="0.00001140" iyz="0.00000004" izz="0.00001294"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/arm/visual/link7.obj" scale="-1 1 1"/>
+   </geometry>
+  </visual>
+ </link>
+ <joint name="right_arm_joint7" type="revolute">
+  <origin rpy="1.5707963 0 0" xyz="0 0 0"/>
+  <parent link="right_arm_link06"/>
+  <child link="right_arm_link07"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="0" lower="-0.5236" upper="0.5236" velocity="0"/>
+ </joint>
+ <!-- Hand connection joint -->
+ <joint name="right_arm_joint07_fixed" type="fixed">
+  <origin rpy="-1.5707963 0 -1.5707963" xyz="0 0 0"/>
+  <parent link="right_arm_link07"/>
+  <child link="right_hand"/>
+ </joint>
+ <!-- Hand link -->
+ <link name="right_hand">
+  <inertial>
+   <origin xyz="-0.00174346841701916 -0.00527579194314928 0.0630645733021228"/>
+   <mass value="0.153951635222705"/>
+   <inertia ixx="8.73156029524248e-05" ixy="-2.76454788715318e-07" ixz="-6.56394653650542e-07" iyy="0.00013139692405234" iyz="-2.87478350015867e-06" izz="6.85856479957296e-05"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/paw.obj" scale="1 -1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/paw.stl" scale="1 -1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <!-- Thumb swing -->
+ <link name="R_thumb_swing">
+  <inertial>
+   <origin xyz="-0.00794385183139725 0.000525120612119151 0.00647353069427367"/>
+   <mass value="0.00344766519929713"/>
+   <inertia ixx="9.46681111469513e-08" ixy="2.82870154716105e-09" ixz="6.48803833821274e-10" iyy="1.37273777260403e-07" iyz="-4.31486298309418e-11" izz="9.49138662594884e-08"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/thumb_swing.obj" scale="1 -1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_thumb_swing_hull.stl" scale="1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="R_thumb_swing_joint" type="revolute">
+  <origin xyz="-0.029178 0.01525 0.0384"/>
+  <parent link="right_hand"/>
+  <child link="R_thumb_swing"/>
+  <axis xyz="0 0 -1"/>
+  <limit effort="1" lower="0" upper="2.286" velocity="100"/>
+ </joint>
+ <!-- Thumb 1 -->
+ <link name="R_thumb_1">
+  <inertial>
+   <origin xyz="0.0259002099345081 0.0127439796878742 -1.99493196570838e-05"/>
+   <mass value="0.0221480762523199"/>
+   <inertia ixx="3.31629342056679e-06" ixy="-8.26036894806839e-07" ixz="-5.55467469886505e-10" iyy="3.39227446692523e-06" iyz="-2.74467395508138e-09" izz="5.78826252617142e-06"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/thumb_1.obj" scale="1 1 -1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_thumb_1_hull.stl" scale="1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="R_thumb_joint" type="revolute">
+  <origin rpy="1.5708 0 3.0756" xyz="-0.013367 0.00088357 0.0052468"/>
+  <parent link="R_thumb_swing"/>
+  <child link="R_thumb_1"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="1" lower="0" upper="0.78" velocity="100"/>
+ </joint>
+ <!-- Thumb 2 -->
+ <link name="R_thumb_2">
+  <inertial>
+   <origin xyz="0.0112938280283933 0.00190048762153883 0.00768932284017045"/>
+   <mass value="0.00380031199387229"/>
+   <inertia ixx="4.33768382054372e-07" ixy="-3.01457326686904e-08" ixz="2.51640808750991e-11" iyy="3.41487853815651e-07" iyz="8.87078510861614e-11" izz="4.77629558482899e-07"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/thumb_2.obj" scale="1 1 -1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_thumb_2_hull.stl" scale="1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="R_thumb_2_joint" type="revolute">
+  <origin xyz="0.0389415822724812 0.0379042246431505 0.00770000000000043"/>
+  <parent link="R_thumb_1"/>
+  <child link="R_thumb_2"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="1" lower="0" upper="0.9144" velocity="100"/>
+  <mimic joint="R_thumb_joint" multiplier="0.40" offset="0"/>
+ </joint>
+ <!-- Thumb 3 -->
+ <link name="R_thumb_3">
+  <inertial>
+   <origin xyz="0.00856534554797862 0.00586022128255342 0.00530182283153385"/>
+   <mass value="0.0067706894584641"/>
+   <inertia ixx="4.15501197420746e-07" ixy="-1.25284733421831e-07" ixz="-1.14020106815917e-10" iyy="2.49677035533967e-07" iyz="-1.89120892374144e-10" izz="4.96219470794644e-07"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/thumb_3.obj" scale="1 1 -1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_thumb_3_hull.stl" scale="1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="R_thumb_3_joint" type="revolute">
+  <origin xyz="0.01728 0.014743 -0.0024"/>
+  <parent link="R_thumb_2"/>
+  <child link="R_thumb_3"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="1" lower="0" upper="1.3716" velocity="100"/>
+  <mimic joint="R_thumb_joint" multiplier="0.60" offset="0"/>
+ </joint>
+ <!-- Index 1 -->
+ <link name="R_index_1">
+  <inertial>
+   <origin xyz="-0.00224105284932037 0.012077244969504 -0.0060501936211354"/>
+   <mass value="0.00439457695368253"/>
+   <inertia ixx="6.7083586478962e-07" ixy="-6.24488990875019e-09" ixz="3.08577901734797e-12" iyy="2.67077182124417e-07" iyz="6.36376851728619e-12" izz="6.64566137309628e-07"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/index_1.obj" scale="-1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_index_1_hull.stl" scale="1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="R_index_joint" type="revolute">
+  <origin rpy="1.6319 0 -1.5708" xyz="-0.034645 -0.0059953 0.11967"/>
+  <parent link="right_hand"/>
+  <child link="R_index_1"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="1" lower="0" upper="1.7" velocity="100"/>
+ </joint>
+ <!-- Index 2 -->
+ <link name="R_index_2">
+  <inertial>
+   <origin xyz="-0.00267181156648408 0.0187445889538955 -0.00504998556104182"/>
+   <mass value="0.00571203807044643"/>
+   <inertia ixx="8.55148442316881e-07" ixy="8.71729684204069e-08" ixz="-8.24415168858219e-14" iyy="1.37439550017429e-07" iyz="-2.39445035228549e-12" izz="8.7133999943214e-07"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/index_2.obj" scale="-1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_index_2_hull.stl" scale="1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="R_index_2_joint" type="revolute">
+  <origin xyz="-0.00025731 0.032131 -0.001"/>
+  <parent link="R_index_1"/>
+  <child link="R_index_2"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="1" lower="0" upper="1.7" velocity="100"/>
+  <mimic joint="R_index_joint" multiplier="1" offset="0"/>
+ </joint>
+ <!-- Middle 1 -->
+ <link name="R_middle_1">
+  <inertial>
+   <origin xyz="-0.00224109922728143 0.0120773004987843 -0.00605026659163534"/>
+   <mass value="0.00439459313596441"/>
+   <inertia ixx="6.70837166910088e-07" ixy="6.24455169745287e-09" ixz="3.25321014718543e-12" iyy="2.67075608382375e-07" iyz="7.72285454063169e-12" izz="6.64566599226699e-07"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/index_1.obj" scale="-1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_index_1_hull.stl" scale="1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="R_middle_joint" type="revolute">
+  <origin rpy="1.5708 0 -1.5708" xyz="-0.014728 -0.0059953 0.1205"/>
+  <parent link="right_hand"/>
+  <child link="R_middle_1"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="1" lower="0" upper="1.7" velocity="100"/>
+ </joint>
+ <!-- Middle 2 -->
+ <link name="R_middle_2">
+  <inertial>
+   <origin xyz="-0.00298222684069903 0.0208035344929268 -0.00505001299185808"/>
+   <mass value="0.00621146132075292"/>
+   <inertia ixx="1.14490560231061e-06" ixy="9.72401476943198e-08" ixz="1.3517205790896e-13" iyy="1.43751808502962e-07" iyz="-2.47497784308553e-12" izz="1.15530613342501e-06"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/middle_2.obj" scale="-1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_middle_2_hull.stl" scale="1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="R_middle_2_joint" type="revolute">
+  <origin xyz="-0.000257313524408706 0.0321313914917268 -0.000999999999997433"/>
+  <parent link="R_middle_1"/>
+  <child link="R_middle_2"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="1" lower="0" upper="1.7" velocity="100"/>
+  <mimic joint="R_middle_joint" multiplier="1" offset="0"/>
+ </joint>
+ <!-- Ring 1 -->
+ <link name="R_ring_1">
+  <inertial>
+   <origin xyz="-0.00224111083051005 0.0120773228749342 -0.00605025463459374"/>
+   <mass value="0.00439459971330683"/>
+   <inertia ixx="6.70838404636804e-07" ixy="-6.24505446614477e-09" ixz="-3.11377919594888e-12" iyy="2.67075452784363e-07" iyz="6.97432649840291e-12" izz="6.64567590491197e-07"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/index_1.obj" scale="-1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_index_1_hull.stl" scale="1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="R_ring_joint" type="revolute">
+  <origin rpy="1.5184 0 -1.5708" xyz="0.0060088 -0.0059953 0.12031"/>
+  <parent link="right_hand"/>
+  <child link="R_ring_1"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="1" lower="0" upper="1.7" velocity="100"/>
+ </joint>
+ <!-- Ring 2 -->
+ <link name="R_ring_2">
+  <inertial>
+   <origin xyz="-0.00298222724294862 0.0208035302665959 -0.00505000729887283"/>
+   <mass value="0.0062114646816875"/>
+   <inertia ixx="1.14490597705472e-06" ixy="-9.724016633507e-08" ixz="-1.8724939827074e-14" iyy="1.43751909738487e-07" iyz="-2.55418863081498e-12" izz="1.15530647485239e-06"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/middle_2.obj" scale="-1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_middle_2_hull.stl" scale="1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="R_ring_2_joint" type="revolute">
+  <origin xyz="-0.00025731 0.032131 -0.001"/>
+  <parent link="R_ring_1"/>
+  <child link="R_ring_2"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="1" lower="0" upper="1.7" velocity="100"/>
+  <mimic joint="R_ring_joint" multiplier="1" offset="0"/>
+ </joint>
+ <!-- Pinky 1 -->
+ <link name="R_pinky_1">
+  <inertial>
+   <origin xyz="-0.00224116685703836 0.0120774556144769 -0.00605021177667593"/>
+   <mass value="0.00439465496713926"/>
+   <inertia ixx="6.70846058569314e-07" ixy="6.24765025269437e-09" ixz="2.14363990209694e-12" iyy="2.67077034128326e-07" iyz="4.49364771164151e-12" izz="6.64575163698131e-07"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/index_1.obj" scale="-1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_index_1_hull.stl" scale="1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="R_pinky_joint" type="revolute">
+  <origin rpy="1.4661 0 -1.5708" xyz="0.026254 -0.0059953 0.11901"/>
+  <parent link="right_hand"/>
+  <child link="R_pinky_1"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="1" lower="0" upper="1.7" velocity="100"/>
+ </joint>
+ <!-- Pinky 2 -->
+ <link name="R_pinky_2">
+  <inertial>
+   <origin xyz="-0.00379562052007763 0.0143619415198121 -0.00504990649038004"/>
+   <mass value="0.00441618939121693"/>
+   <inertia ixx="4.4165258349127e-07" ixy="-2.35241296174338e-08" ixz="1.03160129872049e-12" iyy="9.72293330312645e-08" iyz="3.91885258086726e-12" izz="4.50179231370321e-07"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/visual/pinky_2.obj" scale="-1 1 1"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/hand/collision/R_pinky_2_hull.stl" scale="1 1 1"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="R_pinky_2_joint" type="revolute">
+  <origin xyz="-0.00025731 0.032131 -0.001"/>
+  <parent link="R_pinky_1"/>
+  <child link="R_pinky_2"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="1" lower="0" upper="1.7" velocity="100"/>
+  <mimic joint="R_pinky_joint" multiplier="1" offset="0"/>
+ </joint>
+ <link name="head_link01">
+  <inertial>
+   <origin xyz="-0.00154008 0.00649494 0.11627791"/>
+   <mass value="1.39889495"/>
+   <inertia ixx="0.00378192" ixy="-0.00000282" ixz="0.00029671" iyy="0.00393150" iyz="-0.00021616" izz="0.00152438"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/body/visual/head1.obj"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/body/collision/head1.stl"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="head_joint1" type="fixed">
+  <origin xyz="-0.03779 0 0.4101"/>
+  <parent link="base_link"/>
+  <child link="head_link01"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="0" lower="-2.2" upper="2.2" velocity="0"/>
+ </joint>
+ <link name="head_link02">
+  <inertial>
+   <origin xyz="0.03256533 0.02834041 0.00009476"/>
+   <mass value="0.65606942"/>
+   <inertia ixx="0.00350189" ixy="0.00039729" ixz="-0.00000150" iyy="0.00369636" iyz="0.00000231" izz="0.00360950"/>
+  </inertial>
+  <visual>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/body/visual/head2.obj"/>
+   </geometry>
+  </visual>
+  <collision>
+   <geometry>
+    <mesh filename="agibot_a2_description/meshes/body/collision/head2.stl"/>
+   </geometry>
+  </collision>
+ </link>
+ <joint name="head_joint2" type="fixed">
+  <origin rpy="1.5708 0 0" xyz="-0.00501 0 0.16059"/>
+  <parent link="head_link01"/>
+  <child link="head_link02"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="0" lower="-0.5" upper="0.5" velocity="0"/>
+ </joint>
+</robot>

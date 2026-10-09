@@ -17,8 +17,10 @@ const VARIANTS = [
   { name: 'x2-ultra-mobile', ratio: 0.05, error: 0.02 }
 ];
 
-// Material per link, matched to AgiBot's product photos. Everything is white shell unless listed here.
+// Material per link, matched to AgiBot's product photos: white shell, black waist/ankles,
+// white shoulder pods, yellow sole pads. Everything else is white shell.
 const MATERIAL_BY_LINK = {
+  pelvis: 'joint',
   head_pitch_link: 'head',
   head_yaw_link: 'head',
   rgbd_head_front_link: 'glass',
@@ -30,10 +32,10 @@ const MATERIAL_BY_LINK = {
   waist_pitch_link: 'joint',
   left_hip_roll_link: 'joint',
   right_hip_roll_link: 'joint',
-  left_ankle_roll_link: 'joint',
-  right_ankle_roll_link: 'joint',
-  left_shoulder_roll_link: 'joint',
-  right_shoulder_roll_link: 'joint',
+  left_ankle_pitch_link: 'joint',
+  right_ankle_pitch_link: 'joint',
+  left_ankle_roll_link: 'foot',
+  right_ankle_roll_link: 'foot',
   left_wrist_yaw_link: 'joint',
   right_wrist_yaw_link: 'joint',
   left_wrist_pitch_link: 'joint',
@@ -129,7 +131,8 @@ async function build({ name, ratio, error }) {
     shell: doc.createMaterial('shell').setBaseColorFactor([0.93, 0.94, 0.95, 1]).setRoughnessFactor(0.32).setMetallicFactor(0),
     joint: doc.createMaterial('joint').setBaseColorFactor([0.09, 0.1, 0.11, 1]).setRoughnessFactor(0.45).setMetallicFactor(0.3),
     head: doc.createMaterial('head').setBaseColorFactor([0.018, 0.02, 0.024, 1]).setRoughnessFactor(0.22).setMetallicFactor(0.15),
-    glass: doc.createMaterial('glass').setBaseColorFactor([0.02, 0.025, 0.03, 1]).setRoughnessFactor(0.12).setMetallicFactor(0.2)
+    glass: doc.createMaterial('glass').setBaseColorFactor([0.02, 0.025, 0.03, 1]).setRoughnessFactor(0.12).setMetallicFactor(0.2),
+    foot: doc.createMaterial('foot').setBaseColorFactor([0.95, 0.8, 0.1, 1]).setRoughnessFactor(0.5).setMetallicFactor(0)
   };
 
   // ROS is Z-up; glTF is Y-up.

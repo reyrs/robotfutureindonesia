@@ -7,10 +7,12 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { gsap } from 'gsap';
 import { ArrowLeft, ArrowRight, RotateCcw, X } from 'lucide-react';
 import { smoothstep, useMediaQuery } from '../utils/frames';
-import { playCyberClick } from '../utils/cyberAudio';
+import Magnetic from './Magnetic';
+import { registerSectionBg } from './PageBackdrop';
+import { MODEL, NEUTRAL, EMOTES, EYE_MOOD, applyRigPose, addRigEyes, addChestDecal, buildRig } from '../three/x2Rig';
+import { useLanguage } from '../context/LanguageContext';
 
 // Official AgiBot X2 Ultra model (URDF → GLB via scripts/build-robot-model.mjs), one node per real joint.
-const MODEL = { desktop: '/models/x2-ultra.glb', mobile: '/models/x2-ultra-mobile.glb' };
 const FALLBACK = '/assets/lab-fallback.webp';
 const clock = () => performance.now();
 const hasWebGL = () => {
@@ -21,95 +23,6 @@ const hasWebGL = () => {
     return false;
   }
 };
-
-// Resting pose: arms slightly off the body. base_pitch tilts the pelvis (hips counter-rotate so legs stay planted).
-const NEUTRAL = {
-  left_shoulder_roll_joint: 0.1,
-  right_shoulder_roll_joint: -0.1,
-  left_elbow_joint: -0.2,
-  right_elbow_joint: -0.2
-};
-
-const legs = (side, knee) => ({
-  [`${side}_hip_pitch_joint`]: -knee * 0.5,
-  [`${side}_knee_joint`]: knee,
-  [`${side}_ankle_pitch_joint`]: -knee * 0.5
-});
-
-// Keyframes use absolute seconds; joints not listed keep their previous value. Every emote ends back at NEUTRAL.
-const EMOTES = [
-  {
-    id: 'wave',
-    label: 'Lambai',
-    keys: [
-      { t: 0.7, pose: { right_shoulder_pitch_joint: -2.5, right_shoulder_roll_joint: -0.45, right_elbow_joint: -0.6, head_yaw_joint: -0.18, head_pitch_joint: -0.15 } },
-      { t: 1.05, pose: { right_shoulder_roll_joint: -0.12 } },
-      { t: 1.4, pose: { right_shoulder_roll_joint: -0.6 } },
-      { t: 1.75, pose: { right_shoulder_roll_joint: -0.12 } },
-      { t: 2.1, pose: { right_shoulder_roll_joint: -0.6 } },
-      { t: 2.5, pose: { right_shoulder_roll_joint: -0.35 } }
-    ]
-  },
-  {
-    id: 'bow',
-    label: 'Membungkuk',
-    keys: [
-      { t: 1, ease: 'power2.inOut', pose: { base_pitch: 0.5, waist_pitch_joint: 0.25, head_pitch_joint: 0.35, left_shoulder_pitch_joint: -0.3, right_shoulder_pitch_joint: -0.3, left_elbow_joint: -0.55, right_elbow_joint: -0.55 } },
-      { t: 1.9, pose: { base_pitch: 0.5 } }
-    ]
-  },
-  {
-    id: 'handshake',
-    label: 'Jabat tangan',
-    keys: [
-      { t: 0.8, pose: { right_shoulder_pitch_joint: -0.95, right_shoulder_roll_joint: -0.12, right_elbow_joint: -0.55, base_pitch: 0.06, head_pitch_joint: 0.12, head_yaw_joint: -0.08 } },
-      { t: 1.05, pose: { right_elbow_joint: -0.75 } },
-      { t: 1.3, pose: { right_elbow_joint: -0.5 } },
-      { t: 1.55, pose: { right_elbow_joint: -0.75 } },
-      { t: 1.8, pose: { right_elbow_joint: -0.55 } },
-      { t: 2.4, pose: { right_elbow_joint: -0.55 } }
-    ]
-  },
-  {
-    id: 'dance',
-    label: 'Tarian',
-    keys: (() => {
-      const a = { waist_yaw_joint: 0.35, head_yaw_joint: 0.2, left_shoulder_pitch_joint: -1.3, left_elbow_joint: -1.5, right_shoulder_pitch_joint: -0.3, right_elbow_joint: -1.2, ...legs('left', 0.5), ...legs('right', 0.1) };
-      const b = { waist_yaw_joint: -0.35, head_yaw_joint: -0.2, right_shoulder_pitch_joint: -1.3, right_elbow_joint: -1.5, left_shoulder_pitch_joint: -0.3, left_elbow_joint: -1.2, ...legs('right', 0.5), ...legs('left', 0.1) };
-      const up = { waist_yaw_joint: 0, head_yaw_joint: 0, head_pitch_joint: -0.2, left_shoulder_pitch_joint: -2.5, right_shoulder_pitch_joint: -2.5, left_shoulder_roll_joint: 0.4, right_shoulder_roll_joint: -0.4, left_elbow_joint: -0.5, right_elbow_joint: -0.5, ...legs('left', 0.35), ...legs('right', 0.35) };
-      const reset = { head_pitch_joint: 0, left_shoulder_roll_joint: 0.1, right_shoulder_roll_joint: -0.1 };
-      return [
-        { t: 0.5, ease: 'power2.out', pose: a },
-        { t: 1, ease: 'power2.out', pose: b },
-        { t: 1.5, ease: 'power2.out', pose: a },
-        { t: 2, ease: 'power2.out', pose: b },
-        { t: 2.5, ease: 'power2.out', pose: up },
-        { t: 3, ease: 'power2.out', pose: { ...reset, ...a } },
-        { t: 3.5, ease: 'power2.out', pose: { ...reset, ...b } },
-        { t: 4, ease: 'power2.out', pose: up }
-      ];
-    })()
-  },
-  {
-    id: 'point',
-    label: 'Menunjuk',
-    keys: [
-      { t: 0.8, pose: { right_shoulder_pitch_joint: -1.45, right_shoulder_roll_joint: -0.4, right_elbow_joint: -0.06, waist_yaw_joint: -0.15, head_yaw_joint: -0.3, head_pitch_joint: 0.05 } },
-      { t: 2, pose: { right_shoulder_pitch_joint: -1.45 } }
-    ]
-  },
-  {
-    id: 'celebrate',
-    label: 'Selebrasi',
-    keys: [
-      { t: 0.6, pose: { left_shoulder_pitch_joint: -2.8, right_shoulder_pitch_joint: -2.8, left_shoulder_roll_joint: 0.5, right_shoulder_roll_joint: -0.5, left_elbow_joint: -0.3, right_elbow_joint: -0.3, head_pitch_joint: -0.3, ...legs('left', 0.4), ...legs('right', 0.4) } },
-      { t: 0.9, pose: { left_elbow_joint: -0.9, right_elbow_joint: -0.9, ...legs('left', 0.05), ...legs('right', 0.05) } },
-      { t: 1.2, pose: { left_elbow_joint: -0.3, right_elbow_joint: -0.3, ...legs('left', 0.4), ...legs('right', 0.4) } },
-      { t: 1.5, pose: { left_elbow_joint: -0.9, right_elbow_joint: -0.9, ...legs('left', 0.05), ...legs('right', 0.05) } },
-      { t: 2.1, pose: { left_elbow_joint: -0.6, right_elbow_joint: -0.6 } }
-    ]
-  }
-];
 
 // Clickable body regions. `drag` maps screen movement (px) to joint deltas; `front` flips it when seen from behind.
 const K = 0.008;
@@ -167,35 +80,7 @@ const PARTS = [
   }
 ];
 
-// Eyes, as on AgiBot's X2 Ultra product photos: two tall rounded pills lit on the black face.
-// Positions are fractions of the face panel found by raycasting the official head mesh.
-const EYE = { y: 0.47, gap: 0.2, width: 0.15, height: 0.28 };
-// Eye openness per emote: 1 = open, lower = a smiling squint.
-const EYE_MOOD = { wave: 0.5, handshake: 0.6, dance: 0.5, celebrate: 0.42, bow: 0.3, point: 1 };
-
-const pillGeometry = (w, h) => {
-  const r = Math.min(w, h) / 2;
-  const shape = new THREE.Shape();
-  shape.absarc(0, h / 2 - r, r, 0, Math.PI, false);
-  shape.absarc(0, -h / 2 + r, r, Math.PI, Math.PI * 2, false);
-  shape.closePath();
-  return new THREE.ShapeGeometry(shape, 24);
-};
-
-const glowTexture = () => {
-  const c = document.createElement('canvas');
-  c.width = c.height = 128;
-  const g = c.getContext('2d');
-  const radial = g.createRadialGradient(64, 64, 0, 64, 64, 64);
-  radial.addColorStop(0, 'rgba(255,255,255,0.9)');
-  radial.addColorStop(0.35, 'rgba(255,255,255,0.35)');
-  radial.addColorStop(1, 'rgba(255,255,255,0)');
-  g.fillStyle = radial;
-  g.fillRect(0, 0, 128, 128);
-  return new THREE.CanvasTexture(c);
-};
-
-const COLD = new THREE.Color('#8fd3ff');
+const COLD = new THREE.Color('#86a2f4');
 const HOT = new THREE.Color('#ffae5c');
 
 function createEngine({ canvas, isMobile, reducedMotion, ui }) {
@@ -233,11 +118,11 @@ function createEngine({ canvas, isMobile, reducedMotion, ui }) {
   key.shadow.normalBias = 0.02;
   key.shadow.radius = 4;
   scene.add(key, key.target);
-  const rimL = new THREE.DirectionalLight('#8fb9e6', 1.1);
+  const rimL = new THREE.DirectionalLight('#a9bdf7', 1.1);
   rimL.position.set(-3, 2.2, -2.5);
-  const rimR = new THREE.DirectionalLight('#7fa9dd', 0.8);
+  const rimR = new THREE.DirectionalLight('#86a2f4', 0.8);
   rimR.position.set(3, 1.6, -2.2);
-  scene.add(rimL, rimR, new THREE.HemisphereLight('#1b2433', '#030611', 0.6));
+  scene.add(rimL, rimR, new THREE.HemisphereLight('#22262f', '#0c0e13', 0.6));
 
   // Floor that fades into the page background, plus a turntable ring.
   const fade = document.createElement('canvas');
@@ -251,14 +136,14 @@ function createEngine({ canvas, isMobile, reducedMotion, ui }) {
   f.fillRect(0, 0, 256, 256);
   const floor = new THREE.Mesh(
     new THREE.CircleGeometry(3.2, 64),
-    new THREE.MeshStandardMaterial({ color: '#0b1220', roughness: 0.62, metalness: 0.1, transparent: true, alphaMap: new THREE.CanvasTexture(fade) })
+    new THREE.MeshStandardMaterial({ color: '#15181f', roughness: 0.62, metalness: 0.1, transparent: true, alphaMap: new THREE.CanvasTexture(fade) })
   );
   floor.rotation.x = -Math.PI / 2;
   floor.receiveShadow = true;
   scene.add(floor);
   const ring = new THREE.Mesh(
     new THREE.RingGeometry(0.62, 0.628, 128),
-    new THREE.MeshBasicMaterial({ color: '#d6e5f7', transparent: true, opacity: 0.12, depthWrite: false })
+    new THREE.MeshBasicMaterial({ color: '#dfe6fb', transparent: true, opacity: 0.12, depthWrite: false })
   );
   ring.rotation.x = -Math.PI / 2;
   ring.position.y = 0.002;
@@ -292,10 +177,8 @@ function createEngine({ canvas, isMobile, reducedMotion, ui }) {
     eyes: null
   };
 
-  const tmpQ = new THREE.Quaternion();
   const tmpV = new THREE.Vector3();
   const tmpV2 = new THREE.Vector3();
-  const box = new THREE.Box3();
   const Y_AXIS = new THREE.Vector3(0, 1, 0);
 
   const allPoseKeys = () => [...Object.keys(state.joints), 'base_pitch'];
@@ -306,24 +189,7 @@ function createEngine({ canvas, isMobile, reducedMotion, ui }) {
     return j ? Math.min(j.upper, Math.max(j.lower, value)) : value;
   };
 
-  const applyPose = () => {
-    const { joints, pose, pelvis, robot } = state;
-    if (!robot) return;
-    const base = pose.base_pitch ?? 0;
-    for (const name in joints) {
-      const j = joints[name];
-      let v = pose[name] ?? 0;
-      if (name.endsWith('hip_pitch_joint')) v -= base;
-      j.node.quaternion.copy(j.base).multiply(tmpQ.setFromAxisAngle(j.axis, v));
-    }
-    pelvis.quaternion.setFromAxisAngle(Y_AXIS, base);
-    // Keep the lower foot on the floor so bent knees lower the body instead of lifting the feet.
-    robot.position.y = 0;
-    robot.updateMatrixWorld(true);
-    let minY = Infinity;
-    for (const foot of state.feet) minY = Math.min(minY, box.setFromObject(foot).min.y);
-    robot.position.y = -minY;
-  };
+  const applyPose = () => applyRigPose(state);
 
   const setView = () => {
     const w = canvas.clientWidth;
@@ -346,7 +212,7 @@ function createEngine({ canvas, isMobile, reducedMotion, ui }) {
   const setHighlight = (groupId, amount) => {
     for (const mesh of state.meshes) {
       const on = groupId && group(mesh) === groupId;
-      mesh.material.emissive.set('#4f97d2');
+      mesh.material.emissive.set('#86a2f4');
       mesh.material.emissiveIntensity = on ? amount : 0;
     }
   };
@@ -358,38 +224,14 @@ function createEngine({ canvas, isMobile, reducedMotion, ui }) {
     loader.load(
       url,
       (gltf) => {
-        const robot = new THREE.Group();
-        robot.add(gltf.scene);
-        robot.rotation.y = -Math.PI / 2; // URDF faces +X; turn it toward the camera
+        const robot = buildRig(state, gltf.scene);
         scene.add(robot);
-        state.robot = robot;
-        gltf.scene.traverse((node) => {
-          if (node.userData?.joint) {
-            state.joints[node.name] = {
-              node,
-              axis: new THREE.Vector3(...node.userData.axis).normalize(),
-              base: node.quaternion.clone(),
-              lower: node.userData.lower,
-              upper: node.userData.upper
-            };
-          }
-          if (node.name === 'pelvis') state.pelvis = node;
-          if (node.isMesh) {
-            const link = node.parent.name;
-            node.material = node.material.clone();
-            node.castShadow = true;
-            node.receiveShadow = true;
-            node.userData.link = link;
-            node.userData.group = GROUPS.find((g) => g.match.test(link))?.id ?? 'torso';
-            node.userData.baseColor = node.material.color.clone();
-            node.userData.basePos = node.position.clone();
-            state.meshes.push(node);
-          }
-        });
-        state.feet = state.meshes.filter((m) => /ankle_roll_link/.test(m.userData.link));
-        state.pose = neutralPose();
-        applyPose();
-        robot.updateMatrixWorld(true);
+        for (const node of state.meshes) {
+          node.castShadow = true;
+          node.receiveShadow = true;
+          node.userData.group = GROUPS.find((g) => g.match.test(node.userData.link))?.id ?? 'torso';
+          node.userData.baseColor = node.material.color.clone();
+        }
 
         // Explode directions, from the robot's centre, expressed in each mesh's parent space.
         const bounds = new THREE.Box3().setFromObject(robot);
@@ -424,70 +266,8 @@ function createEngine({ canvas, isMobile, reducedMotion, ui }) {
 
   // ---------- Face ----------
   const addEyes = () => {
-    const head = state.meshes.find((m) => m.userData.link === 'head_pitch_link');
-    if (!head) return;
-    head.updateMatrixWorld(true);
-    const bounds = new THREE.Box3().setFromObject(head);
-    const normalMatrix = new THREE.Matrix3().getNormalMatrix(head.matrixWorld);
-    const ray = new THREE.Raycaster();
-    const back = new THREE.Vector3(0, 0, -1);
-    const hitAt = (x, y) => {
-      ray.set(new THREE.Vector3(x, y, bounds.max.z + 0.2), back);
-      const hit = ray.intersectObject(head, false)[0];
-      return hit ? { point: hit.point, normal: hit.face.normal.clone().applyMatrix3(normalMatrix).normalize() } : null;
-    };
-    const facing = (hit) => hit && hit.normal.z > 0.8;
-
-    // Face panel extent: scan the eye column vertically, then the eye row horizontally.
-    const cx = (bounds.min.x + bounds.max.x) / 2;
-    const probeX = cx - (bounds.max.x - bounds.min.x) * 0.15;
-    let top = -Infinity;
-    let bottom = Infinity;
-    for (let k = 0; k <= 90; k++) {
-      const y = bounds.min.y + (k / 90) * (bounds.max.y - bounds.min.y);
-      if (facing(hitAt(probeX, y))) {
-        top = Math.max(top, y);
-        bottom = Math.min(bottom, y);
-      }
-    }
-    if (!Number.isFinite(top)) return;
-    const eyeY = top - (top - bottom) * EYE.y;
-    let left = Infinity;
-    let right = -Infinity;
-    for (let k = 0; k <= 90; k++) {
-      const x = bounds.min.x + (k / 90) * (bounds.max.x - bounds.min.x);
-      if (facing(hitAt(x, eyeY))) {
-        left = Math.min(left, x);
-        right = Math.max(right, x);
-      }
-    }
-    const faceW = right - left;
-    const faceH = top - bottom;
-    const mid = (left + right) / 2;
-
-    const link = head.parent;
-    const group = new THREE.Group();
-    link.add(group);
-    const linkQuat = link.getWorldQuaternion(new THREE.Quaternion()).invert();
-    const core = new THREE.MeshBasicMaterial({ color: '#f2fbff', toneMapped: false, transparent: true });
-    const halo = new THREE.MeshBasicMaterial({ color: '#dbe8f8', map: glowTexture(), transparent: true, opacity: 0.3, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false });
-    const w = faceW * EYE.width;
-    const h = faceH * EYE.height;
-    const items = [-1, 1].map((side) => {
-      const hit = hitAt(mid + side * faceW * EYE.gap, eyeY) ?? { point: new THREE.Vector3(mid + side * faceW * EYE.gap, eyeY, bounds.max.z), normal: new THREE.Vector3(0, 0, 1) };
-      const eye = new THREE.Group();
-      const pill = new THREE.Mesh(pillGeometry(w, h), core);
-      const glow = new THREE.Mesh(new THREE.PlaneGeometry(w * 3.2, h * 2.2), halo);
-      glow.position.z = -0.0004;
-      eye.add(glow, pill);
-      const world = hit.point.clone().addScaledVector(hit.normal, 0.0012);
-      eye.position.copy(link.worldToLocal(world));
-      eye.quaternion.copy(linkQuat).multiply(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), hit.normal));
-      eye.renderOrder = 5;
-      group.add(eye);
-      return eye;
-    });
-    state.eyes = { head, group, items, core, halo, open: 1, target: 1, blinkAt: -1e9, nextBlink: clock() + 1800 };
+    addRigEyes(state, clock);
+    addChestDecal(state);
   };
 
   const updateEyes = (now, dt) => {
@@ -508,6 +288,8 @@ function createEngine({ canvas, isMobile, reducedMotion, ui }) {
     const visible = 1 - 0.8 * state.xray;
     e.core.opacity = visible;
     e.halo.opacity = 0.3 * visible * (state.demo === 'thermal' ? 0.3 : 1);
+    // The chest print fades out with the shells in skeleton view.
+    if (state.chest) state.chest.mat.opacity = 1 - state.xray;
   };
 
   // ---------- Effects ----------
@@ -533,7 +315,7 @@ function createEngine({ canvas, isMobile, reducedMotion, ui }) {
     return found ? found.getWorldPosition(target) : target.set(0, state.height * 0.5, 0);
   };
 
-  const ringMaterial = (onTop = false) => new THREE.MeshBasicMaterial({ color: '#8fb9e6', transparent: true, opacity: 0, depthWrite: false, depthTest: !onTop, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
+  const ringMaterial = (onTop = false) => new THREE.MeshBasicMaterial({ color: '#a9bdf7', transparent: true, opacity: 0, depthWrite: false, depthTest: !onTop, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
 
   const startDemo = (part) => {
     clearFx();
@@ -558,12 +340,12 @@ function createEngine({ canvas, isMobile, reducedMotion, ui }) {
       });
     }
     if (part.id === 'reach') {
-      const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.0035, 0.0035, 1, 12), new THREE.MeshBasicMaterial({ color: '#4f97d2', transparent: true, opacity: 0, depthTest: false }));
+      const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.0035, 0.0035, 1, 12), new THREE.MeshBasicMaterial({ color: '#86a2f4', transparent: true, opacity: 0, depthTest: false }));
       rod.name = 'reach-line';
       rod.renderOrder = 10;
       fx.add(rod);
       for (const name of ['a', 'b']) {
-        const dot = new THREE.Mesh(new THREE.SphereGeometry(0.012, 16, 16), new THREE.MeshBasicMaterial({ color: '#d6e5f7', transparent: true, opacity: 0, depthTest: false }));
+        const dot = new THREE.Mesh(new THREE.SphereGeometry(0.012, 16, 16), new THREE.MeshBasicMaterial({ color: '#dfe6fb', transparent: true, opacity: 0, depthTest: false }));
         dot.renderOrder = 10;
         dot.name = `reach-${name}`;
         fx.add(dot);
@@ -620,7 +402,7 @@ function createEngine({ canvas, isMobile, reducedMotion, ui }) {
       const beat = reducedMotion ? 0.5 : 0.5 + 0.5 * Math.sin(t * 7);
       for (const mesh of state.meshes) {
         if (/^(torso_link|lidar_chest)/.test(mesh.userData.link)) {
-          mesh.material.emissive.set('#4f97d2');
+          mesh.material.emissive.set('#86a2f4');
           mesh.material.emissiveIntensity = 0.08 + 0.18 * beat;
         }
       }
@@ -649,7 +431,7 @@ function createEngine({ canvas, isMobile, reducedMotion, ui }) {
   const buildEdges = () => {
     if (state.edgesReady) return;
     state.edgesReady = true;
-    const material = new THREE.LineBasicMaterial({ color: '#8fb9e6', transparent: true, opacity: 0, depthWrite: false });
+    const material = new THREE.LineBasicMaterial({ color: '#a9bdf7', transparent: true, opacity: 0, depthWrite: false });
     for (const mesh of state.meshes) {
       const edges = new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry, 28), material);
       edges.visible = false;
@@ -708,7 +490,7 @@ function createEngine({ canvas, isMobile, reducedMotion, ui }) {
     state.hoverAt = now;
     const mesh = pick(e.clientX, e.clientY);
     const g = mesh ? GROUPS.find((x) => x.id === group(mesh)) : null;
-    ui.onHover(g && state.explode < 0.01 ? { label: g.label, x: e.clientX, y: e.clientY } : null);
+    ui.onHover(g && state.explode < 0.01 ? { id: g.id, label: g.label, x: e.clientX, y: e.clientY } : null);
     if (!state.demo) setHighlight(g?.id, 0.14);
     canvas.style.cursor = g ? 'grab' : '';
   };
@@ -902,9 +684,21 @@ function createEngine({ canvas, isMobile, reducedMotion, ui }) {
 }
 
 export default function LabSection() {
+  const { lang, t } = useLanguage();
   const isMobile = useMediaQuery('(max-width: 899px)');
   const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
   const finePointer = useMediaQuery('(hover: hover) and (pointer: fine)');
+
+  const groupLabels = {
+    id: { head: 'Kepala', torso: 'Badan', leftArm: 'Lengan kiri', rightArm: 'Lengan kanan', leftLeg: 'Kaki kiri', rightLeg: 'Kaki kanan' },
+    en: { head: 'Head', torso: 'Torso', leftArm: 'Left Arm', rightArm: 'Right Arm', leftLeg: 'Left Leg', rightLeg: 'Right Leg' },
+    zh: { head: '头部', torso: '躯干', leftArm: '左臂', rightArm: '右臂', leftLeg: '左腿', rightLeg: '右腿' }
+  };
+
+  const activeParts = PARTS.map((p, i) => {
+    const loc = t.lab?.parts?.[i];
+    return loc ? { ...p, ...loc } : p;
+  });
 
   const sectionRef = useRef(null);
   const canvasRef = useRef(null);
@@ -925,6 +719,11 @@ export default function LabSection() {
   useEffect(() => {
     activeRef.current = active;
   }, [active]);
+
+  // Lazy section: tell PageBackdrop to bind (or rebind) the data-bg triggers.
+  useEffect(() => {
+    registerSectionBg();
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -961,7 +760,6 @@ export default function LabSection() {
       }
     };
     const select = (index) => {
-      playCyberClick(720, 0.04);
       setActive(index);
       activeRef.current = index;
       setEmote(null);
@@ -992,7 +790,6 @@ export default function LabSection() {
   }, [isMobile, reducedMotion, webgl]);
 
   const select = (index) => {
-    playCyberClick(720, 0.04);
     setActive(index);
     activeRef.current = index;
     setEmote(null);
@@ -1004,7 +801,6 @@ export default function LabSection() {
     engineRef.current?.release();
   };
   const playEmote = (id) => {
-    playCyberClick(820, 0.05);
     setActive(null);
     activeRef.current = null;
     setEmote(id);
@@ -1013,7 +809,6 @@ export default function LabSection() {
     engineRef.current?.playEmote(id);
   };
   const toggle = (key) => {
-    playCyberClick(760, 0.04);
     const next = { ...tools, [key]: !tools[key] };
     setTools(next);
     if (key === 'explode') {
@@ -1023,7 +818,6 @@ export default function LabSection() {
     } else engineRef.current?.setXray(next.xray);
   };
   const reset = () => {
-    playCyberClick(600, 0.04);
     setActive(null);
     activeRef.current = null;
     setEmote(null);
@@ -1032,9 +826,9 @@ export default function LabSection() {
   };
   const step = (direction) => select((active + direction + PARTS.length) % PARTS.length);
 
-  const part = active === null ? null : PARTS[active];
-  const next = active === null ? null : PARTS[(active + 1) % PARTS.length];
-  const prev = active === null ? null : PARTS[(active - 1 + PARTS.length) % PARTS.length];
+  const part = active === null ? null : activeParts[active];
+  const next = active === null ? null : activeParts[(active + 1) % activeParts.length];
+  const prev = active === null ? null : activeParts[(active - 1 + activeParts.length) % activeParts.length];
   const ready = status === 'ready';
   const failed = !webgl || status === 'error';
 
@@ -1042,18 +836,19 @@ export default function LabSection() {
     <section
       id="lab"
       ref={sectionRef}
-      className={`lab${part ? ' is-inspecting' : ''}`}
+      className={`lab theme-dark${part ? ' is-inspecting' : ''}`}
+      data-bg="#05060a"
       aria-labelledby="lab-title"
       onKeyDown={(e) => {
         if (e.key === 'Escape' && part) release();
       }}
     >
       <div className="lab-stage" aria-hidden={!ready}>
-        <canvas ref={canvasRef} className="lab-canvas" role="img" aria-label="Model 3D AgiBot X2 Ultra yang bisa diputar dan digerakkan" />
+        <canvas ref={canvasRef} className="lab-canvas" role="img" aria-label={t.lab?.title || "Model 3D AgiBot X2 Ultra"} />
         {failed && <img className="lab-fallback" src={FALLBACK} alt="AgiBot X2 Ultra" />}
         {status === 'loading' && (
           <div className="lab-loading" role="status">
-            <span>Memuat model 3D</span>
+            <span>{t.lab?.loading || 'Memuat model 3D'}</span>
             <span className="lab-loading-bar"><span style={{ transform: `scaleX(${progress})` }} /></span>
           </div>
         )}
@@ -1062,36 +857,36 @@ export default function LabSection() {
 
       {hover && finePointer && (
         <div ref={tipRef} className="lab-tip" style={{ transform: `translate(${hover.x + 16}px, ${hover.y + 16}px)` }} aria-hidden="true">
-          <strong>{hover.label}</strong>
-          <span>Tarik untuk menggerakkan, klik untuk detail</span>
+          <strong>{(groupLabels[lang] && groupLabels[lang][hover.id]) || hover.label}</strong>
+          <span>{t.lab?.tipDrag || 'Tarik untuk menggerakkan, klik untuk detail'}</span>
         </div>
       )}
 
       <div className="container lab-head">
         <div>
-          <h2 id="lab-title" className="lab-title">Kenali X2 Ultra.</h2>
+          <h2 id="lab-title" className="lab-title">{t.lab?.title || 'Kenali X2 Ultra.'}</h2>
           <p className="lab-sub">
             {finePointer
-              ? 'Putar 360°, tarik lengan, kaki, atau kepalanya, atau pilih gerakan di samping.'
-              : 'Geser untuk memutar 360°, ketuk bagian robot, atau pilih gerakan.'}
+              ? (t.lab?.subDesktop || 'Putar 360°, tarik lengan, kaki, atau kepalanya, atau pilih gerakan di samping.')
+              : (t.lab?.subMobile || 'Geser untuk memutar 360°, ketuk bagian robot, atau pilih gerakan.')}
           </p>
         </div>
         <div className="lab-tools">
-          <button type="button" className="btn-cyber-outline lab-tool" aria-pressed={tools.explode} onClick={() => toggle('explode')} disabled={!ready}>Urai</button>
-          <button type="button" className="btn-cyber-outline lab-tool" aria-pressed={tools.xray} onClick={() => toggle('xray')} disabled={!ready}>Rangka</button>
-          <button type="button" className="btn-cyber-outline lab-tool" onClick={reset} disabled={!ready} aria-label="Kembalikan posisi awal">
+          <Magnetic as="button" type="button" className="btn-cyber-outline lab-tool" aria-pressed={tools.explode} onClick={() => toggle('explode')} disabled={!ready}>{t.lab?.btnExplode || 'Urai'}</Magnetic>
+          <Magnetic as="button" type="button" className="btn-cyber-outline lab-tool" aria-pressed={tools.xray} onClick={() => toggle('xray')} disabled={!ready}>{t.lab?.btnSkeleton || 'Rangka'}</Magnetic>
+          <Magnetic as="button" type="button" className="btn-cyber-outline lab-tool" onClick={reset} disabled={!ready} aria-label={t.lab?.btnReset || 'Kembalikan posisi awal'}>
             <RotateCcw size={16} aria-hidden="true" />
-          </button>
+          </Magnetic>
         </div>
       </div>
 
       {!part && (
-        <div className="lab-emotes" role="group" aria-label="Gerakan robot">
-          <p className="lab-emotes-label">Gerakan</p>
+        <div className="lab-emotes" role="group" aria-label={t.lab?.emotesLabel || 'Gerakan robot'}>
+          <p className="lab-emotes-label">{t.lab?.emotesLabel || 'Gerakan'}</p>
           {EMOTES.map((e) => (
-            <button key={e.id} type="button" className="lab-emote" aria-pressed={emote === e.id} onClick={() => playEmote(e.id)} disabled={!ready}>
-              {e.label}
-            </button>
+            <Magnetic as="button" key={e.id} type="button" className="lab-emote" aria-pressed={emote === e.id} onClick={() => playEmote(e.id)} disabled={!ready}>
+              {t.lab?.emotes?.[e.id] || e.label}
+            </Magnetic>
           ))}
         </div>
       )}
@@ -1115,14 +910,14 @@ export default function LabSection() {
           )}
           <p className="lab-panel-detail">{part.detail}</p>
           <div className="lab-panel-nav">
-            <button type="button" onClick={() => step(-1)} className="lab-nav-btn" aria-label={`Sebelumnya: ${prev.label}`}>
+            <button type="button" onClick={() => step(-1)} className="lab-nav-btn" aria-label={`${t.lab?.prev || 'Sebelumnya'}: ${prev.label}`}>
               <ArrowLeft size={16} aria-hidden="true" />
             </button>
             <button type="button" onClick={() => step(1)} className="lab-nav-btn">
               <span>{next.label}</span>
               <ArrowRight size={16} aria-hidden="true" />
             </button>
-            <button type="button" onClick={release} className="lab-nav-btn lab-nav-close" aria-label="Tutup detail">
+            <button type="button" onClick={release} className="lab-nav-btn lab-nav-close" aria-label={t.lab?.close || 'Tutup detail'}>
               <X size={16} aria-hidden="true" />
             </button>
           </div>
@@ -1131,7 +926,7 @@ export default function LabSection() {
 
       <div className="container lab-bottom">
         <ul className="lab-index">
-          {PARTS.map((p, i) => (
+          {activeParts.map((p, i) => (
             <li key={p.id}>
               <button type="button" onClick={() => (active === i ? release() : select(i))} aria-pressed={active === i} className="lab-index-item" disabled={!ready}>
                 <span className="lab-index-label">{p.label}</span>
@@ -1141,7 +936,13 @@ export default function LabSection() {
           ))}
         </ul>
         <p className="lab-credit">
-          Model 3D resmi AgiBot X2 Ultra, <a href="/models/X2-ULTRA-LICENSE.txt" target="_blank" rel="noopener noreferrer">lisensi Mulan PSL v2</a>
+          {lang === 'zh' ? (
+            <>官方正版 AgiBot X2 Ultra 3D 模型，遵循 <a href="/models/X2-ULTRA-LICENSE.txt" target="_blank" rel="noopener noreferrer">木兰开源许可证 (Mulan PSL v2)</a></>
+          ) : lang === 'en' ? (
+            <>Official AgiBot X2 Ultra 3D model, <a href="/models/X2-ULTRA-LICENSE.txt" target="_blank" rel="noopener noreferrer">Mulan PSL v2 license</a></>
+          ) : (
+            <>Model 3D resmi AgiBot X2 Ultra, <a href="/models/X2-ULTRA-LICENSE.txt" target="_blank" rel="noopener noreferrer">lisensi Mulan PSL v2</a></>
+          )}
         </p>
       </div>
 
@@ -1153,7 +954,7 @@ export default function LabSection() {
           min-height: 700px;
           overflow: hidden;
           background:
-            radial-gradient(36% 58% at 50% 30%, rgba(148, 163, 184, 0.14), transparent 70%),
+            radial-gradient(40% 60% at 50% 30%, rgba(255, 255, 255, 0.03), transparent 70%),
             var(--bg-void);
         }
         .lab-stage {
@@ -1211,7 +1012,7 @@ export default function LabSection() {
           font-weight: 700;
           font-size: 0.95rem;
           color: var(--text-pure);
-          text-shadow: 0 1px 8px rgba(3, 6, 17, 0.9);
+          text-shadow: 0 1px 8px rgba(12, 14, 19, 0.9);
           opacity: 0;
           pointer-events: none;
           white-space: nowrap;
@@ -1225,8 +1026,10 @@ export default function LabSection() {
           gap: 0.15rem;
           padding: 0.5rem 0.75rem;
           border-radius: var(--radius-sm);
-          background: rgba(3, 6, 17, 0.85);
-          border: 1px solid rgba(255, 255, 255, 0.12);
+          background: rgba(12, 14, 19, 0.65);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
           pointer-events: none;
           font-size: 0.85rem;
           color: var(--text-body);
@@ -1274,7 +1077,10 @@ export default function LabSection() {
           min-width: 44px;
           padding: 0.55rem 1rem;
           font-size: 0.9rem;
-          background: rgba(3, 6, 17, 0.6);
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
         }
         .lab-tool[aria-pressed='true'] {
           border-color: var(--accent);
@@ -1306,8 +1112,10 @@ export default function LabSection() {
           padding: 0 1rem;
           text-align: left;
           border-radius: var(--radius-md);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          background: rgba(3, 6, 17, 0.4);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          background: rgba(255, 255, 255, 0.02);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
           color: var(--text-heading);
           font-family: var(--font-display);
           font-size: 0.95rem;
@@ -1316,11 +1124,13 @@ export default function LabSection() {
           transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
         }
         .lab-emote:hover {
-          border-color: rgba(255, 255, 255, 0.35);
+          border-color: rgba(255, 255, 255, 0.15);
+          background: rgba(255, 255, 255, 0.06);
         }
         .lab-emote[aria-pressed='true'] {
-          border-color: var(--accent);
-          color: var(--accent);
+          border-color: rgba(255, 255, 255, 0.3);
+          background: rgba(255, 255, 255, 0.1);
+          color: var(--text-pure);
         }
         .lab-panel {
           position: absolute;
@@ -1343,8 +1153,10 @@ export default function LabSection() {
           to { opacity: 1; transform: none; }
         }
         .lab-panel-label {
-          font-size: 0.95rem;
-          color: var(--accent);
+          font-size: 0.85rem;
+          color: var(--text-muted);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
           font-weight: 600;
         }
         .lab-panel-big {
@@ -1377,7 +1189,7 @@ export default function LabSection() {
           top: 6px;
           height: 3px;
           border-radius: 2px;
-          background: linear-gradient(90deg, #8fd3ff, #ffae5c);
+          background: linear-gradient(90deg, #86a2f4, #ffae5c);
         }
         .lab-thermal-marker {
           position: absolute;
@@ -1420,16 +1232,20 @@ export default function LabSection() {
           min-height: 44px;
           padding: 0 0.9rem;
           border-radius: var(--radius-md);
-          border: 1px solid rgba(255, 255, 255, 0.18);
-          background: transparent;
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          background: rgba(255, 255, 255, 0.03);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
           color: var(--text-pure);
           font-family: var(--font-display);
           font-size: 0.9rem;
           font-weight: 600;
           cursor: pointer;
+          transition: all 0.2s ease;
         }
         .lab-nav-btn:hover {
-          border-color: rgba(255, 255, 255, 0.45);
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(255, 255, 255, 0.15);
         }
         .lab-nav-close {
           margin-left: auto;
@@ -1464,7 +1280,7 @@ export default function LabSection() {
           color: var(--text-pure);
         }
         .lab-index-item[aria-pressed='true'] {
-          border-top-color: var(--accent);
+          border-top-color: var(--text-pure);
         }
         .lab-index-label {
           display: block;
@@ -1532,7 +1348,9 @@ export default function LabSection() {
             width: auto;
             transform: none;
             padding-top: 1rem;
-            background: linear-gradient(180deg, rgba(3, 6, 17, 0), rgba(3, 6, 17, 0.9) 20%);
+            background: linear-gradient(180deg, rgba(12, 14, 19, 0), rgba(12, 14, 19, 0.8) 20%);
+            -webkit-mask-image: linear-gradient(180deg, transparent, #000 20%);
+            mask-image: linear-gradient(180deg, transparent, #000 20%);
           }
           .lab-panel-big {
             font-size: 2.4rem;

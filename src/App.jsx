@@ -1,41 +1,64 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
+import Lenis from 'lenis';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Navbar from './components/Navbar';
-import ScrollStory from './components/ScrollStory';
-import FormationSection from './components/FormationSection';
-import RentalCalculator from './components/RentalCalculator';
+import Preloader from './components/Preloader';
+import Cursor from './components/Cursor';
+import ScrollProgress from './components/ScrollProgress';
+import PageBackdrop from './components/PageBackdrop';
+import Hero from './components/Hero';
+import StorySection from './components/StorySection';
+import FleetSection from './components/FleetSection';
+import ServiceSection from './components/ServiceSection';
 import FaqSection from './components/FaqSection';
 import Footer from './components/Footer';
 
-// three.js is only needed for the lab, so it loads as its own chunk.
+import { useLanguage } from './context/LanguageContext';
+
+// three.js for the lab loads as its own chunk.
 const LabSection = lazy(() => import('./components/LabSection'));
 
+gsap.registerPlugin(ScrollTrigger);
+
 export default function App() {
+  const { t } = useLanguage();
+
+  // Smooth scrolling drives the pinned story; reduced-motion users keep the native scroll.
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    const lenis = new Lenis({ duration: 1.05 });
+    window.__lenis = lenis;
+    const raf = (time) => lenis.raf(time * 1000);
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(raf);
+    gsap.ticker.lagSmoothing(0);
+    return () => {
+      gsap.ticker.remove(raf);
+      lenis.destroy();
+      window.__lenis = null;
+    };
+  }, []);
+
   return (
-    <div style={{ position: 'relative', minHeight: '100vh', background: 'var(--bg-void)' }}>
-      <a href="#main" className="skip-link">Lewati ke konten</a>
-
+    <>
+      <a href="#main" className="skip-link">{t.nav.skipLink}</a>
+      <Preloader />
+      <Cursor />
+      <ScrollProgress />
+      <PageBackdrop />
       <Navbar />
-
-      <main id="main" tabIndex={-1} style={{ position: 'relative', zIndex: 1, outline: 'none' }}>
-        {/* 1. Opening + scroll-scrubbed robot story */}
-        <ScrollStory />
-
-        {/* 2. Official X2 Ultra 3D model: orbit, pose each joint, emotes, exploded and X-ray views */}
-        <Suspense fallback={<section id="lab" style={{ height: '100svh', background: 'var(--bg-void)' }} aria-label="Kenali X2 Ultra" />}>
+      <main id="main" tabIndex={-1} style={{ outline: 'none' }}>
+        <Hero />
+        <StorySection />
+        <FleetSection />
+        <Suspense fallback={<section id="lab" style={{ height: '100svh' }} aria-label={t.lab.title} />}>
           <LabSection />
         </Suspense>
-
-        {/* 3. Fleet formation lit one spotlight at a time */}
-        <FormationSection />
-
-        {/* 4. Interactive Rental Cost & Package Estimator */}
-        <RentalCalculator />
-
-        {/* 5. Frequently Asked Questions */}
+        <ServiceSection />
         <FaqSection />
       </main>
-
       <Footer />
-    </div>
+    </>
   );
 }

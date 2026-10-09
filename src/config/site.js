@@ -8,8 +8,11 @@ export const waLink = (message = 'Halo Robotshow Indonesia, saya ingin cek jadwa
   `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`;
 
 export const NAV_ITEMS = [
-  { id: 'lab', label: 'Teknologi' },
+  { id: 'acara', label: 'Acara' },
   { id: 'armada', label: 'Armada' },
-  { id: 'calculator', label: 'Hitung Biaya' },
+  { id: 'lab', label: 'Teknologi' },
+  { id: 'layanan', label: 'Layanan' },
   { id: 'faq', label: 'FAQ' }
 ];
+
+export const PRICELIST_MESSAGE = 'Halo Robotshow Indonesia, boleh minta daftar harga sewa robot?';

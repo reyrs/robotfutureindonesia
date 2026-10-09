@@ -1,19 +1,28 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Volume2, VolumeX, Menu, X, MessageCircle } from 'lucide-react';
-import { toggleSound, isSoundEnabled, playCyberClick } from '../utils/cyberAudio';
-import { NAV_ITEMS, WA_CTA_LABEL, waLink } from '../config/site';
+import { Menu, X, MessageCircle } from 'lucide-react';
+import { waLink } from '../config/site';
+import { useLanguage } from '../context/LanguageContext';
+import Magnetic from './Magnetic';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Navbar() {
-  const [soundOn, setSoundOn] = useState(isSoundEnabled);
+  const { lang, setLang, t, languages } = useLanguage();
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const sentinelRef = useRef(null);
   const toggleRef = useRef(null);
+
+  const navItems = [
+    { id: 'acara', label: t.nav.acara },
+    { id: 'armada', label: t.nav.armada },
+    { id: 'lab', label: t.nav.lab },
+    { id: 'layanan', label: t.nav.layanan },
+    { id: 'faq', label: t.nav.faq }
+  ];
 
   // Solid once the page leaves the top; hides while scrolling down, returns on the way up.
   useEffect(() => {
@@ -47,12 +56,7 @@ export default function Navbar() {
     };
   }, [mobileMenuOpen]);
 
-  const handleSoundToggle = () => {
-    setSoundOn(toggleSound());
-  };
-
   const handleNavClick = () => {
-    playCyberClick(700, 0.04);
     setMobileMenuOpen(false);
     setHidden(false);
   };
@@ -63,55 +67,58 @@ export default function Navbar() {
 
       <header className={`site-header${scrolled ? ' is-scrolled' : ''}${hidden ? ' is-hidden' : ''}`}>
         <div className="container site-header-inner">
-          <a href="#top" onClick={handleNavClick} className="brand-lockup" aria-label="Robotshow.id, kembali ke atas">
+          <a href="/" onClick={handleNavClick} className="brand-lockup" aria-label={t.nav.homeLabel}>
             <img src="/assets/logo/rfi-mark-color.png" alt="" width="36" height="36" className="brand-mark" />
             <span className="brand-text">
               <span className="brand-name">
                 Robotshow<span style={{ color: 'var(--accent)' }}>.id</span>
               </span>
-              <span className="brand-sub">Robotika Futuristik Indonesia</span>
             </span>
           </a>
 
           <nav aria-label="Navigasi utama" className="desktop-nav">
-            {NAV_ITEMS.map((item) => (
-              <a key={item.id} href={`#${item.id}`} onClick={handleNavClick} className="nav-link">
+            {navItems.map((item) => (
+              <a key={item.id} href={`/#${item.id}`} onClick={handleNavClick} className="nav-link">
                 {item.label}
               </a>
             ))}
           </nav>
 
           <div className="header-actions">
-            <button
-              type="button"
-              onClick={handleSoundToggle}
-              aria-pressed={soundOn}
-              aria-label="Efek suara"
-              title={soundOn ? 'Matikan efek suara' : 'Nyalakan efek suara'}
-              className="icon-btn sound-toggle-desktop"
-            >
-              {soundOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
-            </button>
+            <div className="lang-switcher" role="group" aria-label={t.nav.switchLang}>
+              {languages.map((l) => (
+                <button
+                  key={l.code}
+                  type="button"
+                  onClick={() => setLang(l.code)}
+                  className={`lang-btn ${lang === l.code ? 'is-active' : ''}`}
+                  aria-pressed={lang === l.code}
+                  title={l.name}
+                >
+                  {l.label}
+                </button>
+              ))}
+            </div>
 
-            <a
-              href={waLink()}
+            <Magnetic
+              as="a"
+              href={waLink(t.hero.waMessage)}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => playCyberClick(800, 0.05)}
               className="btn-cyber-primary header-cta"
-              aria-label={`${WA_CTA_LABEL} lewat WhatsApp`}
+              aria-label={`${t.nav.cta} lewat WhatsApp`}
             >
               <MessageCircle size={16} className="header-cta-icon" />
-              <span>{WA_CTA_LABEL}</span>
-            </a>
+              <span>{t.nav.cta}</span>
+            </Magnetic>
 
             <button
               ref={toggleRef}
               type="button"
-              onClick={() => { playCyberClick(500, 0.03); setMobileMenuOpen((open) => !open); }}
+              onClick={() => setMobileMenuOpen((open) => !open)}
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-menu"
-              aria-label={mobileMenuOpen ? 'Tutup menu' : 'Buka menu'}
+              aria-label={mobileMenuOpen ? t.nav.menuClose : t.nav.menuOpen}
               className="icon-btn mobile-nav-toggle"
             >
               {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -122,18 +129,41 @@ export default function Navbar() {
 
       {mobileMenuOpen && (
         <div id="mobile-menu" className="mobile-drawer">
+          <div className="lang-switcher mobile-lang-switcher" role="group" aria-label={t.nav.switchLang}>
+            {languages.map((l) => (
+              <button
+                key={l.code}
+                type="button"
+                onClick={() => setLang(l.code)}
+                className={`lang-btn ${lang === l.code ? 'is-active' : ''}`}
+                aria-pressed={lang === l.code}
+                title={l.name}
+              >
+                <span className="lang-flag">{l.flag}</span>
+                <span>{l.label}</span>
+              </button>
+            ))}
+          </div>
+
           <nav aria-label="Menu utama" className="mobile-drawer-nav">
-            {NAV_ITEMS.map((item) => (
-              <a key={item.id} href={`#${item.id}`} onClick={handleNavClick} className="mobile-nav-link">
+            {navItems.map((item) => (
+              <a key={item.id} href={`/#${item.id}`} onClick={handleNavClick} className="mobile-nav-link">
                 {item.label}
               </a>
             ))}
           </nav>
 
-          <button type="button" onClick={handleSoundToggle} aria-pressed={soundOn} className="mobile-sound-toggle">
-            {soundOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
-            <span>Efek suara: {soundOn ? 'Nyala' : 'Mati'}</span>
-          </button>
+          <Magnetic
+            as="a"
+            href={waLink(t.hero.waMessage)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-cyber-primary mobile-cta"
+            onClick={handleNavClick}
+          >
+            <MessageCircle size={18} />
+            <span>{t.nav.cta}</span>
+          </Magnetic>
         </div>
       )}
 
@@ -154,6 +184,7 @@ export default function Navbar() {
           z-index: 100;
           padding: 0.9rem 0;
           border-bottom: 1px solid transparent;
+          background-color: transparent;
           transform: translateY(0);
           transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease, padding 0.3s ease, border-color 0.3s ease;
           will-change: transform;
@@ -163,10 +194,10 @@ export default function Navbar() {
         }
         .site-header.is-scrolled {
           padding: 0.6rem 0;
-          background: rgba(3, 6, 17, 0.9);
+          background-color: rgba(240, 241, 250, 0.82);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
-          border-bottom-color: rgba(79, 151, 210, 0.15);
+          border-bottom-color: rgba(0, 0, 0, 0.08);
         }
         .site-header-inner {
           display: flex;
@@ -200,11 +231,6 @@ export default function Navbar() {
           line-height: 1.2;
           white-space: nowrap;
         }
-        .brand-sub {
-          font-size: 0.7rem;
-          color: var(--text-body);
-          white-space: nowrap;
-        }
         .desktop-nav {
           display: none;
           align-items: center;
@@ -235,14 +261,14 @@ export default function Navbar() {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: rgba(255, 255, 255, 0.05);
+          background: color-mix(in srgb, var(--text-pure) 5%, transparent);
           border: 1px solid var(--border-subtle);
           color: var(--text-heading);
           cursor: pointer;
           transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
         }
         .icon-btn[aria-pressed='true'] {
-          background: rgba(79, 151, 210, 0.12);
+          background: var(--accent-subtle);
           border-color: var(--border-accent);
           color: var(--accent);
         }
@@ -256,7 +282,7 @@ export default function Navbar() {
           position: fixed;
           inset: 0;
           z-index: 99;
-          background: rgba(3, 6, 17, 0.97);
+          background: var(--bg-void);
           display: flex;
           flex-direction: column;
           justify-content: center;
@@ -280,19 +306,63 @@ export default function Navbar() {
         .mobile-nav-link:hover {
           color: var(--accent);
         }
-        .mobile-sound-toggle {
+        .lang-switcher {
           display: inline-flex;
           align-items: center;
-          gap: 0.5rem;
-          min-height: 44px;
-          padding: 0.6rem 1.25rem;
-          border-radius: var(--radius-full);
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(0, 0, 0, 0.04);
           border: 1px solid var(--border-subtle);
-          color: var(--text-body);
-          font-family: var(--font-display);
-          font-size: 0.95rem;
+          border-radius: var(--radius-full, 9999px);
+          padding: 3px;
+          gap: 2px;
+          backdrop-filter: blur(10px);
+        }
+        .lang-btn {
+          background: transparent;
+          border: none;
+          color: var(--text-muted);
+          font-family: inherit;
+          font-size: 0.78rem;
+          font-weight: 600;
+          letter-spacing: 0.02em;
+          padding: 0.28rem 0.65rem;
+          border-radius: var(--radius-full, 9999px);
           cursor: pointer;
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          line-height: 1;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+        }
+        .lang-btn:hover {
+          color: var(--text-pure);
+          background: rgba(0, 0, 0, 0.06);
+        }
+        .lang-btn.is-active {
+          background: var(--accent);
+          color: #fff;
+          font-weight: 700;
+        }
+        .mobile-lang-switcher {
+          padding: 5px;
+          gap: 6px;
+          background: rgba(0, 0, 0, 0.04);
+          margin-bottom: 0.5rem;
+        }
+        .mobile-lang-switcher .lang-btn {
+          font-size: 0.95rem;
+          padding: 0.55rem 1.1rem;
+        }
+        .lang-flag {
+          font-size: 1.05rem;
+          line-height: 1;
+        }
+        .mobile-cta {
+          margin-top: 1rem;
+          padding: 0.75rem 2rem;
+          font-size: 1rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
         }
         @media (min-width: 1024px) {
           .desktop-nav { display: flex; }
@@ -300,13 +370,12 @@ export default function Navbar() {
           .mobile-drawer { display: none; }
         }
         @media (max-width: 1023px) {
-          .sound-toggle-desktop { display: none; }
         }
         @media (max-width: 639px) {
-          .brand-sub { display: none; }
           .brand-mark { width: 32px; height: 32px; }
-          .brand-name { font-size: 1.1rem; }
-          .header-cta { padding: 0.55rem 0.95rem; font-size: 0.85rem; }
+          .brand-name { font-size: 1.05rem; }
+          .lang-switcher:not(.mobile-lang-switcher) { display: none; }
+          .header-cta { padding: 0.55rem 0.85rem; font-size: 0.82rem; }
           .header-cta-icon { display: none; }
         }
       `}</style>

@@ -1,14 +1,14 @@
+import { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { SplitText } from 'gsap/SplitText';
 import { ArrowUp, Mail } from 'lucide-react';
-import { playCyberClick } from '../utils/cyberAudio';
-import { NAV_ITEMS, waLink } from '../config/site';
-import { FLEET_MODELS } from '../data/promptsData';
+import { waLink } from '../config/site';
+import { RENTABLE, robotHref } from '../data/robots';
+import { useLanguage } from '../context/LanguageContext';
+import Magnetic from './Magnetic';
 
 const footerHeadingStyle = {
-  fontSize: '0.9rem',
-  color: '#fff',
-  fontFamily: 'var(--font-mono)',
-  textTransform: 'uppercase',
-  letterSpacing: '0.08em',
   marginBottom: '1.25rem'
 };
 
@@ -22,25 +22,56 @@ function InstagramIcon({ size = 16, color = "currentColor" }) {
   );
 }
 
+gsap.registerPlugin(ScrollTrigger, SplitText);
+
 export default function Footer() {
+  const { t } = useLanguage();
+  const wordRef = useRef(null);
+
+  const footerNavItems = [
+    { id: 'acara', label: t.nav.acara },
+    { id: 'armada', label: t.nav.armada },
+    { id: 'lab', label: t.nav.lab },
+    { id: 'layanan', label: t.nav.layanan },
+    { id: 'faq', label: t.nav.faq }
+  ];
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    const split = SplitText.create(wordRef.current, { type: 'chars' });
+    const tween = gsap.from(split.chars, {
+      yPercent: 70,
+      opacity: 0,
+      duration: 1.2,
+      stagger: 0.045,
+      ease: 'expo.out',
+      scrollTrigger: { trigger: wordRef.current, start: 'top 98%', once: true }
+    });
+    return () => {
+      tween.scrollTrigger?.kill();
+      tween.kill();
+      split.revert();
+    };
+  }, []);
+
   return (
     <footer
+      data-bg="#e7e9f6"
       style={{
-        background: '#02040a',
-        borderTop: '1px solid var(--border-subtle)',
-        padding: '5rem 0 3rem 0',
+        borderTop: 'var(--hairline)',
+        padding: 'clamp(5rem, 8vw, 7rem) 0 3rem 0',
         position: 'relative'
       }}
     >
       <div className="container">
-        
+
         {/* Main Footer Grid */}
         <div
           style={{
             display: 'grid',
             gridTemplateColumns: 'minmax(0, 1.6fr) repeat(auto-fit, minmax(160px, 1fr))',
-            gap: '3.5rem',
-            marginBottom: '4rem'
+            gap: 'clamp(2.5rem, 4vw, 4rem)',
+            marginBottom: '4.5rem'
           }}
           className="footer-layout"
         >
@@ -54,32 +85,21 @@ export default function Footer() {
                 height="40"
                 style={{ width: '40px', height: '40px', objectFit: 'contain' }}
               />
-              <span style={{ fontSize: '1.45rem', fontWeight: 800, color: '#fff' }}>
+              <span style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--text-pure)' }}>
                 Robotshow<span style={{ color: 'var(--accent)' }}>.id</span>
               </span>
             </div>
 
             <p style={{ color: 'var(--text-body)', fontSize: '0.92rem', lineHeight: 1.6, maxWidth: '420px', marginBottom: '1.75rem' }}>
-              Sewa robot humanoid dan robodog AgiBot untuk event, lengkap dengan kru dan asuransi. Dikelola PT Robotika Futuristik Indonesia (RFI).
+              {t.footer?.desc || 'Sewa robot humanoid dan robodog AgiBot untuk event, lengkap dengan operator, pengiriman, dan pemasangan. Dikelola PT Robotika Futuristik Indonesia (RFI).'}
             </p>
 
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
               <a
                 href="https://www.instagram.com/robotshow.id/"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  color: 'var(--text-body)',
-                  textDecoration: 'none',
-                  fontSize: '0.88rem',
-                  padding: '0.5rem 0.85rem',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-subtle)',
-                  background: 'rgba(255, 255, 255, 0.02)'
-                }}
+                className="footer-chip"
               >
                 <InstagramIcon size={16} color="var(--accent)" />
                 <span>@robotshow.id</span>
@@ -87,18 +107,7 @@ export default function Footer() {
 
               <a
                 href="mailto:info@robotshow.id"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  color: 'var(--text-body)',
-                  textDecoration: 'none',
-                  fontSize: '0.88rem',
-                  padding: '0.5rem 0.85rem',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-subtle)',
-                  background: 'rgba(255, 255, 255, 0.02)'
-                }}
+                className="footer-chip"
               >
                 <Mail size={16} color="var(--accent)" aria-hidden="true" />
                 <span>info@robotshow.id</span>
@@ -108,38 +117,38 @@ export default function Footer() {
 
           {/* Col: Company */}
           <nav aria-labelledby="footer-nav-heading">
-            <h2 id="footer-nav-heading" style={footerHeadingStyle}>
-              Perusahaan
+            <h2 id="footer-nav-heading" className="mono-label footer-col-title" style={footerHeadingStyle}>
+              {t.footer?.company || 'Perusahaan'}
             </h2>
             <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: '0.65rem' }}>
-              <li><a href="#top" className="footer-link">Beranda</a></li>
-              {NAV_ITEMS.map((item) => (
-                <li key={item.id}><a href={`#${item.id}`} className="footer-link">{item.label}</a></li>
+              <li><a href="/" className="footer-link">{t.footer?.home || 'Beranda'}</a></li>
+              {footerNavItems.map((item) => (
+                <li key={item.id}><a href={`/#${item.id}`} className="footer-link">{item.label}</a></li>
               ))}
             </ul>
           </nav>
 
           {/* Col: Products */}
           <div>
-            <h2 style={footerHeadingStyle}>
-              Armada Robot
+            <h2 className="mono-label footer-col-title" style={footerHeadingStyle}>
+              {t.footer?.readyRent || 'Robot siap sewa'}
             </h2>
             <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: '0.65rem' }}>
-              {FLEET_MODELS.map((model) => (
-                <li key={model.id}><a href="#armada" className="footer-link">{model.name}</a></li>
+              {RENTABLE.map((model) => (
+                <li key={model.id}><a href={robotHref(model)} className="footer-link">{model.name}</a></li>
               ))}
             </ul>
           </div>
 
           {/* Col: Booking */}
           <div>
-            <h2 style={footerHeadingStyle}>
-              Hubungi Kami
+            <h2 className="mono-label footer-col-title" style={footerHeadingStyle}>
+              {t.footer?.contact || 'Hubungi Kami'}
             </h2>
             <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: '0.65rem' }}>
               <li>
                 <a
-                  href={waLink()}
+                  href={waLink(t.hero.waMessage)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="footer-link"
@@ -148,8 +157,8 @@ export default function Footer() {
                   WhatsApp
                 </a>
               </li>
-              <li><span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Operasional: Jakarta &middot; Surabaya &middot; Bali</span></li>
-              <li><span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Senin - Minggu: 08:00 - 22:00 WIB</span></li>
+              <li><span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{t.footer?.operational || 'Operasional: Jakarta, Surabaya, dan Bali'}</span></li>
+              <li><span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{t.footer?.hours || 'Senin - Minggu: 08:00 - 22:00 WIB'}</span></li>
             </ul>
           </div>
 
@@ -158,7 +167,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div
           style={{
-            borderTop: '1px solid var(--border-subtle)',
+            borderTop: 'var(--hairline)',
             paddingTop: '2rem',
             display: 'flex',
             justifyContent: 'space-between',
@@ -170,34 +179,73 @@ export default function Footer() {
           }}
         >
           <div>
-            &copy; {new Date().getFullYear()} PT Robotika Futuristik Indonesia (RFI).
+            &copy; {new Date().getFullYear()} {t.footer?.rights || 'PT Robotika Futuristik Indonesia (RFI). Hak cipta dilindungi.'}
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-            <a
+            <Magnetic as="a"
               href="#top"
-              onClick={() => playCyberClick(800, 0.04)}
-              aria-label="Kembali ke atas"
-              style={{
-                width: '44px',
-                height: '44px',
-                borderRadius: '50%',
-                background: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid var(--border-subtle)',
-                color: 'var(--accent)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
+              aria-label={t.footer?.backToTop || 'Kembali ke atas'}
+              className="footer-top"
             >
               <ArrowUp size={16} aria-hidden="true" />
-            </a>
+            </Magnetic>
           </div>
         </div>
 
       </div>
 
+      {/* The name, once, at full volume: the last thing the page says. */}
+      <div ref={wordRef} className="footer-wordmark" aria-hidden="true">ROBOTSHOW</div>
+
       <style>{`
+        .footer-wordmark {
+          margin-top: clamp(2rem, 5vw, 4rem);
+          font: 900 clamp(2.6rem, 14.6vw, 15rem) / 0.78 var(--font-display);
+          letter-spacing: -0.055em;
+          text-align: center;
+          color: transparent;
+          -webkit-text-stroke: 1px var(--border-subtle);
+          white-space: nowrap;
+          overflow: hidden;
+          user-select: none;
+          translate: 0 0.16em;
+        }
+        .footer-col-title {
+          color: var(--text-muted);
+        }
+        .footer-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.6rem 1.1rem;
+          font-size: 0.88rem;
+          color: var(--text-body);
+          text-decoration: none;
+          background: var(--color-white);
+          border: var(--hairline);
+          border-radius: var(--radius-full);
+          transition: border-color 0.25s ease, color 0.25s ease;
+        }
+        .footer-chip:hover {
+          border-color: var(--color-ink);
+          color: var(--text-pure);
+        }
+        .footer-top {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          background: var(--color-white);
+          border: var(--hairline);
+          color: var(--accent);
+          transition: border-color 0.25s ease;
+        }
+        .footer-top:hover {
+          border-color: var(--color-ink);
+        }
         .footer-link {
           color: var(--text-body);
           text-decoration: none;
