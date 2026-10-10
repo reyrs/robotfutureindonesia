@@ -136,7 +136,7 @@ function createEngine({ canvas, isMobile, reducedMotion, ui }) {
   f.fillRect(0, 0, 256, 256);
   const floor = new THREE.Mesh(
     new THREE.CircleGeometry(3.2, 64),
-    new THREE.MeshStandardMaterial({ color: '#15181f', roughness: 0.62, metalness: 0.1, transparent: true, alphaMap: new THREE.CanvasTexture(fade) })
+    new THREE.MeshStandardMaterial({ color: '#1c2853', roughness: 0.62, metalness: 0.1, transparent: true, alphaMap: new THREE.CanvasTexture(fade) })
   );
   floor.rotation.x = -Math.PI / 2;
   floor.receiveShadow = true;
@@ -289,7 +289,7 @@ function createEngine({ canvas, isMobile, reducedMotion, ui }) {
     e.core.opacity = visible;
     e.halo.opacity = 0.3 * visible * (state.demo === 'thermal' ? 0.3 : 1);
     // The chest print fades out with the shells in skeleton view.
-    if (state.chest) state.chest.mat.opacity = 1 - state.xray;
+    if (state.chest) state.chest.mat.opacity = state.chest.led.opacity = 1 - state.xray;
   };
 
   // ---------- Effects ----------
@@ -837,14 +837,14 @@ export default function LabSection() {
       id="lab"
       ref={sectionRef}
       className={`lab theme-dark${part ? ' is-inspecting' : ''}`}
-      data-bg="#05060a"
+      data-bg="#0B1533"
       aria-labelledby="lab-title"
       onKeyDown={(e) => {
         if (e.key === 'Escape' && part) release();
       }}
     >
       <div className="lab-stage" aria-hidden={!ready}>
-        <canvas ref={canvasRef} className="lab-canvas" role="img" aria-label={t.lab?.title || "Model 3D AgiBot X2 Ultra"} />
+        <canvas ref={canvasRef} className="lab-canvas" role="img" aria-label="AgiBot X2 Ultra 3D" />
         {failed && <img className="lab-fallback" src={FALLBACK} alt="AgiBot X2 Ultra" />}
         {status === 'loading' && (
           <div className="lab-loading" role="status">
@@ -864,7 +864,7 @@ export default function LabSection() {
 
       <div className="container lab-head">
         <div>
-          <h2 id="lab-title" className="lab-title">{t.lab?.title || 'Kenali X2 Ultra.'}</h2>
+          <h2 id="lab-title" className="lab-title">{t.lab?.title || 'Ruang casting'}</h2>
           <p className="lab-sub">
             {finePointer
               ? (t.lab?.subDesktop || 'Putar 360°, tarik lengan, kaki, atau kepalanya, atau pilih gerakan di samping.')
@@ -954,8 +954,7 @@ export default function LabSection() {
           min-height: 700px;
           overflow: hidden;
           background:
-            radial-gradient(40% 60% at 50% 30%, rgba(255, 255, 255, 0.03), transparent 70%),
-            var(--bg-void);
+            radial-gradient(60% 70% at 50% 38%, color-mix(in oklab, var(--rfi-navy) 78%, var(--rfi-blue)) 0%, var(--rfi-navy) 72%);
         }
         .lab-stage {
           position: absolute;
@@ -1055,10 +1054,12 @@ export default function LabSection() {
           opacity: 0;
         }
         .lab-title {
-          font-size: clamp(2rem, 3.4vw, 3rem);
-          letter-spacing: -0.035em;
-          line-height: 1.04;
-          color: var(--text-pure);
+          font-family: var(--font-serif);
+          font-weight: 400;
+          font-size: clamp(44px, 5.4vw, 96px);
+          letter-spacing: -0.02em;
+          line-height: 0.95;
+          color: var(--rfi-paper);
           transition: opacity 0.4s ease;
         }
         .lab-sub {
@@ -1241,7 +1242,7 @@ export default function LabSection() {
           font-size: 0.9rem;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease; /* not transform: Magnetic tweens it */
         }
         .lab-nav-btn:hover {
           background: rgba(255, 255, 255, 0.08);

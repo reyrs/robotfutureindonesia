@@ -53,7 +53,7 @@ const id = location.pathname.split('/').filter(Boolean)[1];
 const robot = RENTABLE.find((r) => r.id === id);
 
 if (!robot) {
-  location.replace('/#robot');
+  location.replace('/#armada');
 } else {
   document.title = `Sewa ${robot.name} untuk Event | Robotshow.id`;
   createRoot(document.getElementById('root')).render(

@@ -73,7 +73,7 @@ export default function Preloader() {
           position: fixed;
           inset: 0;
           z-index: 2000;
-          background: var(--color-bg);
+          background: #0a0c10;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
@@ -82,7 +82,7 @@ export default function Preloader() {
         .preloader-mark {
           font: 900 clamp(1.6rem, 4vw, 3rem) / 1 var(--font-display);
           letter-spacing: -0.04em;
-          color: var(--color-ink);
+          color: var(--rfi-paper);
         }
         .preloader-bottom {
           display: flex;
@@ -92,13 +92,13 @@ export default function Preloader() {
         .preloader-bar {
           flex: 1;
           height: 2px;
-          background: rgba(0, 0, 0, 0.12);
+          background: rgba(193, 255, 0, 0.15);
           overflow: hidden;
         }
         .preloader-bar span {
           display: block;
           height: 100%;
-          background: var(--color-ink);
+          background: var(--rfi-paper);
           transform: scaleX(0);
           transform-origin: left center;
         }
@@ -107,7 +107,7 @@ export default function Preloader() {
           font-weight: 500;
           letter-spacing: -0.02em;
           line-height: 0.9;
-          color: var(--color-ink);
+          color: var(--rfi-paper);
           font-variant-numeric: tabular-nums;
         }
       `}</style>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ruang Casting X2 Ultra 3D | Robotshow.id</title>
+    <meta name="description" content="Putar, urai, dan gerakkan model 3D resmi AgiBot X2 Ultra. Lihat sensor, sendi, dan jangkauannya sebelum menyewa untuk acara Anda." />
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://robotshow.id/casting/" />
+    <meta property="og:title" content="Ruang Casting X2 Ultra 3D | Robotshow.id" />
+    <meta property="og:description" content="Putar, urai, dan gerakkan model 3D resmi AgiBot X2 Ultra." />
+    <meta property="og:image" content="https://robotshow.id/assets/og-robotshow.jpg" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/assets/logo/rfi-mark-color.png" />
+
+    <!-- Fonts (self-hosted): Switzer (text), Bodoni Moda (headlines) -->
+    <link rel="preload" href="/fonts/switzer-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/switzer-700.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/bodoni-moda.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- The model starts downloading with the page, not after the script runs. -->
+    <link rel="preload" href="/models/x2-ultra.glb" as="fetch" type="model/gltf-binary" crossorigin media="(min-width: 900px)" />
+    <link rel="preload" href="/models/x2-ultra-mobile.glb" as="fetch" type="model/gltf-binary" crossorigin media="(max-width: 899px)" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/casting.jsx"></script>
+  </body>
+</html>

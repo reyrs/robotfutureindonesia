@@ -216,76 +216,91 @@ export function addRigEyes(state, clock) {
   state.eyes = { head, group, items, core, halo, open: 1, target: 1, blinkAt: -1e9, nextBlink: clock() + 1800 };
 }
 
-// AGIBOT wordmark and blue arc on the chest, as on AgiBot's product photos.
-// Built as a grid of raycast hits so the print hugs the shell's curvature; parented to the torso
-// mesh so it follows poses and the lab's explode view with no per-frame bookkeeping.
+// AGIBOT wordmark over a blue light strip, as on AgiBot's product photos: the light runs in the
+// arched panel seam above the LiDAR window, the wordmark sits small above it. The seam is read
+// from the baked AO (scripts/bake-x2.py). Both are parented to the torso mesh so they follow
+// poses and the lab's explode view with no per-frame bookkeeping.
 export function addChestDecal(state) {
   const torso = state.meshes.find((m) => m.userData.link === 'torso_link');
-  if (!torso) return;
+  const lidar = state.meshes.find((m) => m.userData.link === 'lidar_chest_front_link');
+  const ao = torso?.geometry.attributes.color;
+  if (!lidar || !ao) return;
+  torso.updateMatrixWorld(true);
   const bounds = new THREE.Box3().setFromObject(torso);
+  const width = bounds.max.x - bounds.min.x;
+  const mid = (bounds.min.x + bounds.max.x) / 2;
+  const lidarTop = new THREE.Box3().setFromObject(lidar).max.y;
   const normalMatrix = new THREE.Matrix3().getNormalMatrix(torso.matrixWorld);
   const ray = new THREE.Raycaster();
   const back = new THREE.Vector3(0, 0, -1);
   const hitAt = (x, y) => {
     ray.set(new THREE.Vector3(x, y, bounds.max.z + 0.2), back);
     const hit = ray.intersectObject(torso, false)[0];
-    return hit ? { point: hit.point, normal: hit.face.normal.clone().applyMatrix3(normalMatrix).normalize() } : null;
+    return hit ? { point: hit.point, face: hit.face, normal: hit.face.normal.clone().applyMatrix3(normalMatrix).normalize() } : null;
   };
-  const facing = (h) => h && h.normal.z > 0.75;
 
-  // Front face extent: scan the centre column, then the width at the print band.
-  const cx = (bounds.min.x + bounds.max.x) / 2;
-  let top = -Infinity;
-  let bottom = Infinity;
-  for (let k = 0; k <= 90; k++) {
-    const y = bounds.min.y + (k / 90) * (bounds.max.y - bounds.min.y);
-    const h = hitAt(cx, y);
-    if (facing(h)) {
-      top = Math.max(top, y);
-      bottom = Math.min(bottom, y);
-    }
-  }
-  if (!Number.isFinite(top)) return;
-
-  // Widest front-facing row in the upper chest — the print band on AgiBot's product photos.
-  let bandY = 0;
-  let bandMid = 0;
-  let bandW = 0;
-  for (let f = 0.12; f <= 0.45; f += 0.03) {
-    const y = top - (top - bottom) * f;
-    let l = Infinity;
-    let r = -Infinity;
-    for (let k = 0; k <= 90; k++) {
-      const x = bounds.min.x + (k / 90) * (bounds.max.x - bounds.min.x);
+  // The seam: per column across the arch, the darkest point of the outer shell between the window
+  // and the neck, with the AO interpolated at the hit.
+  const pos = torso.geometry.attributes.position;
+  const tri = new THREE.Triangle();
+  const bary = new THREE.Vector3();
+  const aoAt = ({ point, face }) => {
+    tri.setFromAttributeAndIndices(pos, face.a, face.b, face.c).getBarycoord(torso.worldToLocal(point.clone()), bary);
+    return ao.getX(face.a) * bary.x + ao.getX(face.b) * bary.y + ao.getX(face.c) * bary.z;
+  };
+  const span = width * 0.2;
+  const seam = [];
+  for (let k = 0; k < 24; k++) {
+    const x = mid - span + ((k + 0.5) / 24) * 2 * span;
+    let best = null;
+    for (let y = lidarTop + width * 0.03; y < lidarTop + width * 0.17; y += 0.0015) {
       const h = hitAt(x, y);
-      if (facing(h)) {
-        l = Math.min(l, x);
-        r = Math.max(r, x);
-      }
+      if (!h || h.normal.z < 0.3) continue;
+      const shade = aoAt(h);
+      if (shade < 0.3 && shade < (best?.shade ?? 1)) best = { shade, ...h };
     }
-    if (r - l > bandW) {
-      bandW = r - l;
-      bandY = y;
-      bandMid = (l + r) / 2;
-    }
+    if (best) seam.push(best.point);
   }
-  const center = hitAt(bandMid, bandY);
-  if (!center || bandW < 0.05) return;
-  const mid = bandMid;
-  const w = bandW * 0.55;
+  if (seam.length < 8) return;
+  // The arch is symmetric and smooth on the real shell: fit y = a + c·x² through the picks
+  // (least squares), then lay the strip on the shell along that curve.
+  const sum = (f) => seam.reduce((t, q) => t + f(q), 0);
+  const sq = (q) => (q.x - mid) ** 2;
+  const bend = (seam.length * sum((q) => sq(q) * q.y) - sum(sq) * sum((q) => q.y)) / (seam.length * sum((q) => sq(q) ** 2) - sum(sq) ** 2);
+  const y0 = (sum((q) => q.y) - bend * sum(sq)) / seam.length;
+  const path = [];
+  for (let k = 0; k <= 32; k++) {
+    const x = mid + (k / 16 - 1) * width * 0.17;
+    const h = hitAt(x, y0 + bend * (x - mid) ** 2);
+    if (h) path.push(h.point.clone().addScaledVector(h.normal, 0.0015));
+  }
+  if (path.length < 8) return;
+
+  // The wordmark is a fifth of the chest wide (the text fills ~3/4 of its print), centred above the arch.
+  const w = width * 0.26;
   const hgt = w / 2;
+  const printY = Math.max(...path.map((q) => q.y)) + width * 0.075;
+  const center = hitAt(mid, printY);
+  if (!center) return;
   const cols = 16;
   const rows = 8;
   const positions = new Float32Array(cols * rows * 3);
   const uvs = new Float32Array(cols * rows * 2);
   const indices = [];
+  // Wrap the print around the chest horizontally only: one surface per column, the frontmost of
+  // the band's top, centre and bottom lines, so a panel seam under one line can't sink the letters.
+  const columns = Array.from({ length: cols }, (_, i) => {
+    const x = mid - w / 2 + (i / (cols - 1)) * w;
+    const hits = [printY + hgt / 2, printY, printY - hgt / 2].map((y) => hitAt(x, y)).filter(Boolean);
+    return hits.length ? hits.reduce((a, b) => (b.point.z > a.point.z ? b : a)) : center;
+  });
   for (let j = 0; j < rows; j++) {
     for (let i = 0; i < cols; i++) {
       const u = i / (cols - 1);
       const v = j / (rows - 1);
-      const hit = hitAt(mid - w / 2 + u * w, bandY + hgt / 2 - v * hgt);
-      const h = facing(hit) ? hit : center;
-      const p = h.point.clone().addScaledVector(h.normal, 0.0016);
+      const h = columns[i];
+      // Lifted straight toward the viewer: along a tilted normal the lift would slide letters off the row.
+      const p = new THREE.Vector3(mid - w / 2 + u * w, printY + hgt / 2 - v * hgt, h.point.z + 0.004);
       const local = torso.worldToLocal(p);
       const o = j * cols + i;
       positions.set([local.x, local.y, local.z], o * 3);
@@ -318,8 +333,96 @@ export function addChestDecal(state) {
   const decal = new THREE.Mesh(geometry, mat);
   decal.renderOrder = 6;
   decal.raycast = () => {}; // never intercept lab hover/drag picking
-  torso.add(decal);
-  state.chest = { mat, mesh: decal };
+
+  const led = new THREE.MeshBasicMaterial({ color: '#8fb6f2', toneMapped: false, transparent: true });
+  const tube = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(path), 96, 0.002, 6);
+  tube.applyMatrix4(torso.matrixWorld.clone().invert()); // built in world metres, stored in torso space
+  const strip = new THREE.Mesh(tube, led);
+  strip.raycast = () => {};
+  torso.add(decal, strip);
+  state.chest = { mat, led, mesh: decal };
+}
+
+// Sand-blasted finish on the white shell, as on the real casing: procedural micro-bump plus a
+// little roughness variation, in object space because the CAD meshes have no UVs. The grain fades
+// out where it gets finer than a pixel, so it never shimmers as the robot moves.
+const GRAIN_GLSL = /* glsl */ `
+varying vec3 vGrain;
+float grainHash(vec3 p) {
+  p = fract(p * 0.3183099 + 0.1);
+  p *= 17.0;
+  return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
+}
+float grainNoise(vec3 x) {
+  vec3 i = floor(x);
+  vec3 f = fract(x);
+  f = f * f * (3.0 - 2.0 * f);
+  return mix(
+    mix(mix(grainHash(i), grainHash(i + vec3(1, 0, 0)), f.x), mix(grainHash(i + vec3(0, 1, 0)), grainHash(i + vec3(1, 1, 0)), f.x), f.y),
+    mix(mix(grainHash(i + vec3(0, 0, 1)), grainHash(i + vec3(1, 0, 1)), f.x), mix(grainHash(i + vec3(0, 1, 1)), grainHash(i + 1.0), f.x), f.y),
+    f.z);
+}
+vec3 grainPerturb(vec3 surfPos, vec3 surfNorm, vec2 dHdxy, float faceDir) {
+  vec3 sx = normalize(dFdx(surfPos));
+  vec3 sy = normalize(dFdy(surfPos));
+  vec3 r1 = cross(sy, surfNorm);
+  vec3 r2 = cross(surfNorm, sx);
+  float det = dot(sx, r1) * faceDir;
+  return normalize(abs(det) * surfNorm - sign(det) * (dHdxy.x * r1 + dHdxy.y * r2));
+}`;
+
+export function addShellGrain(state, { size = 0.0012, bump = 0.12, rough = 0.1 } = {}) {
+  for (const mesh of state.meshes) {
+    const m = mesh.material;
+    if (m.name !== 'shell') continue;
+    m.customProgramCacheKey = () => 'shell-grain';
+    m.onBeforeCompile = (shader) => {
+      shader.vertexShader = shader.vertexShader
+        .replace('#include <common>', '#include <common>\nvarying vec3 vGrain;')
+        // Object space scaled to metres (the quantized meshes carry their scale on the node).
+        .replace('#include <begin_vertex>', `#include <begin_vertex>\nvGrain = position * length(modelMatrix[0].xyz) / ${size.toFixed(5)};`);
+      shader.fragmentShader = shader.fragmentShader
+        .replace('#include <common>', `#include <common>\n${GRAIN_GLSL}`)
+        .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+          float grainH = grainNoise(vGrain);
+          float grainFade = 1.0 - smoothstep(0.3, 0.8, length(fwidth(vGrain)));
+          roughnessFactor = clamp(roughnessFactor + (grainH - 0.5) * ${rough.toFixed(3)} * grainFade, 0.0, 1.0);`)
+        .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+          normal = grainPerturb(-vViewPosition, normal, vec2(dFdx(grainH), dFdy(grainH)) * ${bump.toFixed(3)} * grainFade, faceDirection);`);
+    };
+    m.needsUpdate = true;
+  }
+}
+
+// The URDF torso mesh also carries the internal bracket under the shell. On the real robot that
+// sits in the dark waist, so paint everything below the shell's front rim the joint colour.
+export function shadeTorsoUnderside(state) {
+  const torso = state.meshes.find((m) => m.userData.link === 'torso_link');
+  if (!torso) return;
+  torso.updateMatrixWorld(true);
+  const bounds = new THREE.Box3().setFromObject(torso);
+  const ray = new THREE.Raycaster();
+  const back = new THREE.Vector3(0, 0, -1);
+  const cx = (bounds.min.x + bounds.max.x) / 2;
+  let rimY = null;
+  for (let k = 0; k <= 120 && rimY === null; k++) {
+    const y = bounds.min.y + (k / 120) * (bounds.max.y - bounds.min.y) * 0.5;
+    ray.set(new THREE.Vector3(cx, y, bounds.max.z + 0.2), back);
+    const hit = ray.intersectObject(torso, false)[0];
+    if (hit && hit.point.z > bounds.max.z - 0.035) rimY = y; // first hit on the outer shell
+  }
+  if (rimY === null) return;
+  const pos = torso.geometry.attributes.position;
+  const baked = torso.geometry.attributes.color; // AO from scripts/bake-x2.py, when present
+  const colors = new Float32Array(pos.count * 3);
+  const v = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) {
+    const shade = (v.fromBufferAttribute(pos, i).applyMatrix4(torso.matrixWorld).y < rimY - 0.004 ? 0.025 : 1) * (baked ? baked.getX(i) : 1);
+    colors.set([shade, shade, shade], i * 3);
+  }
+  torso.geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  torso.material.vertexColors = true;
+  torso.material.needsUpdate = true;
 }
 
 const chestTexture = () => {
@@ -333,13 +436,7 @@ const chestTexture = () => {
   try { g.letterSpacing = '16px'; } catch { /* older engines draw tight, still legible */ }
   g.textAlign = 'center';
   g.textBaseline = 'middle';
-  g.fillText('AGIBOT', 264, 96);
-  g.strokeStyle = '#1a2ffb';
-  g.lineWidth = 22;
-  g.lineCap = 'round';
-  g.beginPath();
-  g.arc(256, 20, 170, 0.28 * Math.PI, 0.72 * Math.PI);
-  g.stroke();
+  g.fillText('AGIBOT', 264, 128); // +8: letterSpacing trails the last letter
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   return tex;

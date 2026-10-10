@@ -1,12 +1,14 @@
 import React, { useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ArrowLeft, MessageCircle } from 'lucide-react';
-import { SERIES, RENTABLE, robotCutout, shortName } from '../data/robots';
+import { RENTABLE, robotCutout, shortName } from '../data/robots';
+import { TALENT } from '../data/talent';
 import { WA_CTA_LABEL, waLink } from '../config/site';
 import { useScrollMotion, countUp } from '../utils/motion';
 import { RobotGrid, CATALOG_CSS } from './Catalog';
 import RobotViewer from './RobotViewer';
 import Magnetic from './Magnetic';
+import ModelName from './ModelName';
 
 const bookMessage = (robot) => `Halo Robotshow Indonesia, saya ingin cek jadwal sewa ${robot.name} untuk event.`;
 
@@ -27,7 +29,8 @@ function BookButton({ robot }) {
 
 export default function RobotPage({ robot }) {
   const ref = useRef(null);
-  const series = SERIES.find((s) => s.id === robot.series);
+  // Its studio from the talent roster. (The series banners showed other models, e.g. a wheeled D1.)
+  const studio = TALENT.find((item) => item.id === robot.id);
   const others = RENTABLE.filter((r) => r.id !== robot.id);
   useScrollMotion(ref);
 
@@ -53,7 +56,7 @@ export default function RobotPage({ robot }) {
 
   return (
     <div ref={ref} className="rp">
-      <section className="container rp-hero" data-bg="#f0f1fa" aria-labelledby="rp-title">
+      <section className="container rp-hero" data-bg="#F2F0EC" aria-labelledby="rp-title">
         <div className="rp-media theme-dark">
           {robot.model
             ? <RobotViewer robot={robot} />
@@ -61,7 +64,7 @@ export default function RobotPage({ robot }) {
         </div>
         <div className="rp-info">
           <Magnetic as="a" href="/#armada" className="rp-back mono-label"><ArrowLeft size={16} aria-hidden="true" />Semua robot</Magnetic>
-          <h1 id="rp-title" className="display">{robot.name}</h1>
+          <h1 id="rp-title" className="display"><ModelName text={robot.name} /></h1>
           <p className="rp-summary">{robot.summary}</p>
           <dl className="rp-specs">
             {robot.specs.map((spec) => (
@@ -75,26 +78,29 @@ export default function RobotPage({ robot }) {
         </div>
       </section>
 
-      <section className="rp-band duotone" data-bg="#0a0c10" aria-labelledby="rp-acts-title" data-spotlight>
-        <picture>
-          <source media="(max-width: 767px)" srcSet={`/assets/agibot/${series.banner}-m.webp`} />
-          <img src={`/assets/agibot/${series.banner}.webp`} alt="" loading="lazy" decoding="async" data-parallax="6" />
-        </picture>
+      <section
+        className={`rp-band${studio.dark ? '' : ' is-light'}`}
+        style={{ '--bg': studio.bg }}
+        data-bg={studio.bg}
+        aria-labelledby="rp-acts-title"
+        data-spotlight
+      >
+        <img className="rp-band-robot" src={robotCutout(robot)} alt="" width="1100" height="1100" loading="lazy" decoding="async" />
         <div className="container rp-band-copy">
-          <h2 id="rp-acts-title" className="display" data-split>Yang bisa {shortName(robot.name)} lakukan di acara Anda.</h2>
+          <h2 id="rp-acts-title" className="display" data-split><ModelName text={`Yang bisa ${shortName(robot.name)} lakukan di acara Anda.`} /></h2>
           <ul data-stagger>
             {robot.acts.map((act) => <li key={act}>{act}</li>)}
           </ul>
         </div>
       </section>
 
-      <section className="container rp-more" data-bg="#ffffff" aria-labelledby="rp-more-title">
+      <section className="container rp-more" data-bg="#F2F0EC" aria-labelledby="rp-more-title">
         <h2 id="rp-more-title" className="display" data-split>Robot lain yang siap disewa.</h2>
         <RobotGrid robots={others} />
       </section>
 
-      <section className="container rp-cta" data-bg="#f0f1fa" aria-labelledby="rp-cta-title" data-reveal>
-        <h2 id="rp-cta-title" className="display">Cek jadwal {shortName(robot.name)}.</h2>
+      <section className="container rp-cta" data-bg="#F2F0EC" aria-labelledby="rp-cta-title" data-reveal>
+        <h2 id="rp-cta-title" className="display"><ModelName text={`Cek jadwal ${shortName(robot.name)}.`} /></h2>
         <p>Kirim tanggal, lokasi, dan jenis acara. Kami balas dengan ketersediaan unit dan harga.</p>
         <BookButton robot={robot} />
       </section>
@@ -113,8 +119,7 @@ export default function RobotPage({ robot }) {
           position: relative;
           aspect-ratio: 1;
           border-radius: var(--radius);
-          background: var(--bg-surface);
-          border: 1px solid var(--border-subtle);
+          background: radial-gradient(70% 70% at 50% 40%, color-mix(in oklab, var(--rfi-navy) 78%, var(--rfi-blue)) 0%, var(--rfi-navy) 75%);
           overflow: hidden;
         }
         .rp-media img {
@@ -166,38 +171,34 @@ export default function RobotPage({ robot }) {
           color: var(--text-muted);
         }
         .rp-specs dd {
-          font-family: var(--font-mono);
+          font-family: var(--font-display);
           font-size: clamp(1rem, 1.3vw, 1.1rem);
-          font-weight: 500;
+          font-weight: 600;
           color: var(--text-heading);
           font-variant-numeric: tabular-nums;
           text-align: right;
         }
+        /* The robot in its roster studio: seamless paper in its logo colour, the official cutout. */
         .rp-band {
           position: relative;
           min-height: clamp(460px, 42vw, 640px);
           display: flex;
           align-items: center;
           overflow: hidden;
-          color: var(--color-white);
+          color: var(--rfi-paper);
+          background:
+            linear-gradient(to top, color-mix(in oklab, var(--bg) 84%, black) 0%, transparent 34%),
+            radial-gradient(110% 80% at 68% 34%, color-mix(in oklab, var(--bg) 84%, white) 0%, var(--bg) 52%, color-mix(in oklab, var(--bg) 78%, black) 100%);
         }
-        .rp-band.duotone {
-          background: transparent;
+        .rp-band.is-light {
+          color: var(--rfi-navy);
         }
-        .rp-band img {
+        .rp-band-robot {
           position: absolute;
-          left: 0;
-          top: -10%;
-          width: 100%;
-          height: 120%;
-          object-fit: cover;
-          will-change: transform;
-        }
-        .rp-band::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(90deg, rgba(10, 12, 16, 0.62) 0%, transparent 65%);
+          right: 6vw;
+          bottom: -6%;
+          height: 108%;
+          width: auto;
         }
         .rp-band-copy {
           position: relative;
@@ -207,7 +208,7 @@ export default function RobotPage({ robot }) {
         .rp-band h2 {
           max-width: 16ch;
           font-size: clamp(3.5rem, 6vw, 6rem);
-          color: var(--color-white);
+          color: inherit;
         }
         .rp-band ul {
           list-style: none;
@@ -218,9 +219,8 @@ export default function RobotPage({ robot }) {
         }
         .rp-band li {
           padding-left: 1rem;
-          border-left: 2px solid var(--color-white);
+          border-left: 2px solid currentColor;
           font-size: 1.1rem;
-          color: var(--color-white);
         }
         .rp-more {
           padding-top: 6rem;
@@ -257,11 +257,9 @@ export default function RobotPage({ robot }) {
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-full);
           color: var(--color-ink);
-          font-family: var(--font-mono);
-          font-size: 0.7rem;
+          font-family: var(--font-display);
+          font-size: 0.78rem;
           font-weight: 500;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
           backdrop-filter: none;
           -webkit-backdrop-filter: none;
         }
@@ -275,11 +273,21 @@ export default function RobotPage({ robot }) {
             font-size: 1rem;
           }
           .rp-band {
-            min-height: min(120vw, 560px);
+            min-height: min(150vw, 680px);
             align-items: flex-end;
           }
+          .rp-band-robot {
+            top: 0;
+            bottom: auto;
+            right: -6%;
+            height: 64%;
+          }
+          /* Paper colour rising behind the copy so it reads over the robot's legs. */
           .rp-band::after {
-            background: linear-gradient(0deg, rgba(10, 12, 16, 0.78) 0%, rgba(10, 12, 16, 0.42) 60%, transparent 100%);
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg, var(--bg) 30%, transparent 62%);
           }
         }
       `}</style>

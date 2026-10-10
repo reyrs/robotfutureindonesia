@@ -43,7 +43,7 @@ export default defineConfig({
   },
   build: {
     rolldownOptions: {
-      input: { main: 'index.html', robot: 'robot.html' }
+      input: { main: 'index.html', robot: 'robot.html', casting: 'casting/index.html' }
     }
   }
 })

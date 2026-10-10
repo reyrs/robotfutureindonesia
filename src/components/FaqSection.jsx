@@ -16,7 +16,7 @@ export default function FaqSection() {
   };
 
   return (
-    <section id="faq" ref={ref} className="faq" data-bg="#ffffff" aria-labelledby="faq-title">
+    <section id="faq" ref={ref} className="faq" data-bg="#F2F0EC" aria-labelledby="faq-title">
       <div className="container faq-inner">
         <h2 id="faq-title" className="faq-title display" data-split>{t.faq?.title || 'Pertanyaan yang sering diajukan.'}</h2>
         <div className="faq-list" data-stagger>
@@ -43,6 +43,8 @@ export default function FaqSection() {
       <style>{`
         .faq {
           padding: 8rem 0;
+          background: var(--rfi-paper);
+          color: var(--rfi-navy);
         }
         .faq-inner {
           display: grid;
@@ -53,8 +55,12 @@ export default function FaqSection() {
         .faq-title {
           grid-column: 1 / -1;
           max-width: 16ch;
+          font-family: var(--font-serif);
+          font-weight: 400;
           font-size: clamp(3.5rem, 8vw, 9rem);
-          color: var(--text-heading);
+          line-height: 0.92;
+          letter-spacing: -0.025em;
+          color: var(--rfi-navy);
         }
         .faq-list {
           grid-column: 2;

@@ -1,13 +1,7 @@
-// AgiBot line-up shown on the site. Images are official AgiBot product shots (store.agibot.com).
-// Specs follow agibot.com (checked Oct 2026); match them against each unit's datasheet before quoting in a proposal.
-// `rent: true` = in the RFI fleet, has its own page at /robot/<id>/. The rest only get an availability check.
-
-export const SERIES = [
-  { id: 'a', name: 'Seri A', text: 'Humanoid setinggi orang dewasa untuk menyambut tamu, menjadi host booth, dan tampil di panggung peluncuran produk.', banner: 'series-a' },
-  { id: 'x', name: 'Seri X', text: 'Humanoid kompak yang lincah untuk menari, menyapa, dan berfoto bersama pengunjung.', banner: 'series-x' },
-  { id: 'd1', name: 'Seri D1', text: 'Robodog yang berlari, melompat, dan naik tangga. Selalu menarik kerumunan.', banner: 'series-d1' },
-  { id: 'g', name: 'Robot kerja', text: 'Robot beroda dan robot pembersih untuk gedung, pabrik, dan area publik.', banner: 'series-g' }
-];
+// AgiBot line-up shown on the site. Cutouts are official AgiBot product shots (store.agibot.com).
+// Specs follow agibot.com (re-checked 10 Oct 2026); match them against each unit's datasheet before quoting in a proposal.
+// `rent: true` = in the RFI fleet, has its own page at /robot/<id>/. The rest only get an availability check,
+// named in the booking section.
 
 export const ROBOTS = [
   {
@@ -107,7 +101,6 @@ export const ROBOTS = [
   { id: 'c5', series: 'g', name: 'AgiBot C5', tagline: 'Robot pembersih komersial' }
 ];
 
-export const robotImage = (robot) => `/assets/agibot/${robot.id}.webp`;
 export const robotCutout = (robot) => `/assets/robots/${robot.id}.webp`;
 export const robotHref = (robot) => `/robot/${robot.id}/`;
 export const shortName = (name) => name.replace('AgiBot ', '');

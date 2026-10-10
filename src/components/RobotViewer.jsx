@@ -12,7 +12,7 @@ const hasWebgl = () => {
   }
 };
 
-// The 3D stage inside .rp-media: loads the right GLB, shows the Lusion-style % counter,
+// The 3D stage inside .rp-media: loads the right GLB, shows a % load counter,
 // links the model's licence credit, and falls back to the photo cutout if WebGL fails.
 export default function RobotViewer({ robot }) {
   const canvasRef = useRef(null);

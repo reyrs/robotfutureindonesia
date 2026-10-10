@@ -34,12 +34,11 @@ export default function ScrollProgress() {
           height: 3px;
           z-index: 1500;
           pointer-events: none;
-          mix-blend-mode: difference;
         }
         .scroll-progress span {
           display: block;
           height: 100%;
-          background: #fff;
+          background: var(--rfi-sky);
           transform: scaleX(0);
           transform-origin: left center;
         }

@@ -17,9 +17,9 @@ export default function Navbar() {
   const toggleRef = useRef(null);
 
   const navItems = [
-    { id: 'acara', label: t.nav.acara },
     { id: 'armada', label: t.nav.armada },
-    { id: 'lab', label: t.nav.lab },
+    { id: 'acara', label: t.nav.acara },
+    { id: 'lab', label: t.nav.lab, href: '/casting/' }, // its own page: the 3D model is too heavy for the home page
     { id: 'layanan', label: t.nav.layanan },
     { id: 'faq', label: t.nav.faq }
   ];
@@ -71,14 +71,14 @@ export default function Navbar() {
             <img src="/assets/logo/rfi-mark-color.png" alt="" width="36" height="36" className="brand-mark" />
             <span className="brand-text">
               <span className="brand-name">
-                Robotshow<span style={{ color: 'var(--accent)' }}>.id</span>
+                Robotshow<span className="brand-tld">.id</span>
               </span>
             </span>
           </a>
 
           <nav aria-label="Navigasi utama" className="desktop-nav">
             {navItems.map((item) => (
-              <a key={item.id} href={`/#${item.id}`} onClick={handleNavClick} className="nav-link">
+              <a key={item.id} href={item.href ?? `/#${item.id}`} onClick={handleNavClick} className="nav-link">
                 {item.label}
               </a>
             ))}
@@ -106,7 +106,7 @@ export default function Navbar() {
               target="_blank"
               rel="noopener noreferrer"
               className="btn-cyber-primary header-cta"
-              aria-label={`${t.nav.cta} lewat WhatsApp`}
+              aria-label={`${t.nav.cta}, ${t.hero.viaWa}`}
             >
               <MessageCircle size={16} className="header-cta-icon" />
               <span>{t.nav.cta}</span>
@@ -147,7 +147,7 @@ export default function Navbar() {
 
           <nav aria-label="Menu utama" className="mobile-drawer-nav">
             {navItems.map((item) => (
-              <a key={item.id} href={`/#${item.id}`} onClick={handleNavClick} className="mobile-nav-link">
+              <a key={item.id} href={item.href ?? `/#${item.id}`} onClick={handleNavClick} className="mobile-nav-link">
                 {item.label}
               </a>
             ))}
@@ -194,10 +194,10 @@ export default function Navbar() {
         }
         .site-header.is-scrolled {
           padding: 0.6rem 0;
-          background-color: rgba(240, 241, 250, 0.82);
+          background-color: rgba(11, 21, 51, 0.86);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
-          border-bottom-color: rgba(0, 0, 0, 0.08);
+          border-bottom-color: rgba(242, 240, 236, 0.08);
         }
         .site-header-inner {
           display: flex;
@@ -217,6 +217,8 @@ export default function Navbar() {
           height: 36px;
           object-fit: contain;
           flex-shrink: 0;
+          /* The colour mark vanishes on RFI blue: render it as a paper-white silhouette. */
+          filter: brightness(0) invert(0.95);
         }
         .brand-text {
           display: flex;
@@ -226,18 +228,19 @@ export default function Navbar() {
         .brand-name {
           font-size: 1.2rem;
           font-weight: 800;
-          color: var(--text-pure);
+          color: var(--rfi-paper);
           letter-spacing: -0.02em;
           line-height: 1.2;
           white-space: nowrap;
         }
+        .brand-tld { color: rgba(242, 240, 236, 0.6); }
         .desktop-nav {
           display: none;
           align-items: center;
           gap: 1.75rem;
         }
         .nav-link {
-          color: var(--text-body);
+          color: rgba(242, 240, 236, 0.82);
           font-size: 0.92rem;
           font-weight: 500;
           text-decoration: none;
@@ -246,7 +249,7 @@ export default function Navbar() {
           transition: color 0.2s ease;
         }
         .nav-link:hover {
-          color: var(--accent);
+          color: var(--rfi-paper);
         }
         .header-actions {
           display: flex;
@@ -261,28 +264,41 @@ export default function Navbar() {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: color-mix(in srgb, var(--text-pure) 5%, transparent);
-          border: 1px solid var(--border-subtle);
-          color: var(--text-heading);
+          background: rgba(242, 240, 236, 0.08);
+          border: 1px solid rgba(242, 240, 236, 0.22);
+          color: var(--rfi-paper);
           cursor: pointer;
           transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
         }
         .icon-btn[aria-pressed='true'] {
-          background: var(--accent-subtle);
-          border-color: var(--border-accent);
-          color: var(--accent);
+          background: rgba(242, 240, 236, 0.16);
+          border-color: var(--rfi-paper);
         }
         .header-cta {
           padding: 0.6rem 1.1rem;
           font-size: 0.88rem;
           white-space: nowrap;
           min-height: 44px;
+          background: var(--rfi-paper);
+          border-color: var(--rfi-paper);
+          color: var(--rfi-navy);
+          transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .header-cta:hover {
+          background: #fcfbf9;
+          border-color: #fcfbf9;
+          color: var(--rfi-navy);
+        }
+        /* The hero carries the same action; the header only offers it once the hero is gone. */
+        body:has(.hero) .site-header:not(.is-scrolled) .header-cta {
+          opacity: 0;
+          visibility: hidden;
         }
         .mobile-drawer {
           position: fixed;
           inset: 0;
           z-index: 99;
-          background: var(--bg-void);
+          background: var(--rfi-navy);
           display: flex;
           flex-direction: column;
           justify-content: center;
@@ -297,20 +313,20 @@ export default function Navbar() {
           gap: 0.5rem;
         }
         .mobile-nav-link {
-          color: var(--text-heading);
+          color: var(--rfi-paper);
           font-size: 1.35rem;
           font-weight: 600;
           text-decoration: none;
           padding: 0.6rem 1rem;
         }
         .mobile-nav-link:hover {
-          color: var(--accent);
+          color: var(--rfi-titanium);
         }
         .lang-switcher {
           display: inline-flex;
           align-items: center;
-          background: rgba(0, 0, 0, 0.04);
-          border: 1px solid var(--border-subtle);
+          background: rgba(242, 240, 236, 0.08);
+          border: 1px solid rgba(242, 240, 236, 0.2);
           border-radius: var(--radius-full, 9999px);
           padding: 3px;
           gap: 2px;
@@ -319,7 +335,7 @@ export default function Navbar() {
         .lang-btn {
           background: transparent;
           border: none;
-          color: var(--text-muted);
+          color: rgba(242, 240, 236, 0.75);
           font-family: inherit;
           font-size: 0.78rem;
           font-weight: 600;
@@ -334,18 +350,17 @@ export default function Navbar() {
           gap: 0.35rem;
         }
         .lang-btn:hover {
-          color: var(--text-pure);
-          background: rgba(0, 0, 0, 0.06);
+          color: var(--rfi-paper);
+          background: rgba(242, 240, 236, 0.1);
         }
         .lang-btn.is-active {
-          background: var(--accent);
-          color: #fff;
+          background: var(--rfi-paper);
+          color: var(--rfi-navy);
           font-weight: 700;
         }
         .mobile-lang-switcher {
           padding: 5px;
           gap: 6px;
-          background: rgba(0, 0, 0, 0.04);
           margin-bottom: 0.5rem;
         }
         .mobile-lang-switcher .lang-btn {
@@ -375,8 +390,8 @@ export default function Navbar() {
           .brand-mark { width: 32px; height: 32px; }
           .brand-name { font-size: 1.05rem; }
           .lang-switcher:not(.mobile-lang-switcher) { display: none; }
-          .header-cta { padding: 0.55rem 0.85rem; font-size: 0.82rem; }
-          .header-cta-icon { display: none; }
+          /* No room beside the mark and menu: the drawer and the hero carry the action. */
+          .header-cta { display: none; }
         }
       `}</style>
     </>

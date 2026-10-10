@@ -29,9 +29,9 @@ export default function Footer() {
   const wordRef = useRef(null);
 
   const footerNavItems = [
-    { id: 'acara', label: t.nav.acara },
     { id: 'armada', label: t.nav.armada },
-    { id: 'lab', label: t.nav.lab },
+    { id: 'acara', label: t.nav.acara },
+    { id: 'lab', label: t.nav.lab, href: '/casting/' },
     { id: 'layanan', label: t.nav.layanan },
     { id: 'faq', label: t.nav.faq }
   ];
@@ -56,7 +56,7 @@ export default function Footer() {
 
   return (
     <footer
-      data-bg="#e7e9f6"
+      data-bg="#F2F0EC"
       style={{
         borderTop: 'var(--hairline)',
         padding: 'clamp(5rem, 8vw, 7rem) 0 3rem 0',
@@ -123,7 +123,7 @@ export default function Footer() {
             <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: '0.65rem' }}>
               <li><a href="/" className="footer-link">{t.footer?.home || 'Beranda'}</a></li>
               {footerNavItems.map((item) => (
-                <li key={item.id}><a href={`/#${item.id}`} className="footer-link">{item.label}</a></li>
+                <li key={item.id}><a href={item.href ?? `/#${item.id}`} className="footer-link">{item.label}</a></li>
               ))}
             </ul>
           </nav>
@@ -201,11 +201,11 @@ export default function Footer() {
       <style>{`
         .footer-wordmark {
           margin-top: clamp(2rem, 5vw, 4rem);
-          font: 900 clamp(2.6rem, 14.6vw, 15rem) / 0.78 var(--font-display);
-          letter-spacing: -0.055em;
+          /* Bookends the hero masthead: same face, navy on paper. */
+          font: 400 clamp(2.6rem, 14.6vw, 15rem) / 0.8 var(--font-serif);
+          letter-spacing: -0.012em;
           text-align: center;
-          color: transparent;
-          -webkit-text-stroke: 1px var(--border-subtle);
+          color: var(--rfi-navy);
           white-space: nowrap;
           overflow: hidden;
           user-select: none;

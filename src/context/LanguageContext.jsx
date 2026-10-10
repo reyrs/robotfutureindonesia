@@ -10,12 +10,12 @@ export const DICTIONARY = {
   id: {
     // Nav
     nav: {
-      acara: 'Acara',
-      armada: 'Armada',
-      lab: 'Teknologi',
-      layanan: 'Layanan',
+      acara: 'Teaser',
+      armada: 'Talenta',
+      lab: 'Ruang casting',
+      layanan: 'Booking',
       faq: 'FAQ',
-      cta: 'Cek Jadwal',
+      cta: 'Booking talenta',
       skipLink: 'Lewati ke konten',
       menuOpen: 'Buka menu',
       menuClose: 'Tutup menu',
@@ -24,69 +24,57 @@ export const DICTIONARY = {
     },
     // Hero
     hero: {
-      line1: 'Robot yang jadi',
-      line2: 'bintang panggung.',
-      sub: 'Sewa robot humanoid dan robodog AgiBot untuk expo, mall, dan peluncuran produk. Operator kami ikut di setiap acara.',
+      title: 'Talenta robot untuk acara Anda.',
+      sub: 'Sewa robot humanoid dan robodog AgiBot untuk pameran, mall, dan peluncuran produk. Operator kami ikut di setiap acara.',
+      cta: 'Booking talenta',
+      hint: 'Klik untuk memotret',
+      hintTouch: 'Ketuk untuk memotret',
+      shots: 'Hasil jepretan',
+      alt: 'X2 Ultra di studio foto',
+      viaWa: 'lewat WhatsApp',
       ctaPrice: 'Minta daftar harga',
       waMessage: 'Halo Robotshow Indonesia, saya ingin cek jadwal sewa robot untuk event.',
       waPriceMessage: 'Halo Robotshow Indonesia, boleh minta daftar harga sewa robot?'
     },
-    // Story
-    story: {
-      srTitle: 'Satu malam acara bersama robot',
-      disclaimer: 'Ilustrasi suasana acara',
-      chapters: [
-        {
-          id: 'persiapan',
-          place: 'Belakang panggung',
-          word: 'PERSIAPAN',
-          title: ['Dua jam sebelum', 'pintu dibuka.'],
-          text: 'Operator membuka koper, kalibrasi sendi, cek baterai, lalu menjalankan gladi aksi sampai gerakannya bersih.',
-          facts: ['2 operator per unit', 'Baterai cadangan di lokasi']
-        },
-        {
-          id: 'sambutan',
-          place: 'Pintu masuk',
-          word: 'SAMBUTAN',
-          title: ['Tamu pertama', 'disambut robot.'],
-          text: 'Unit humanoid berdiri di pintu, menyapa dalam bahasa Indonesia, menunjuk arah, dan meladeni ajakan berfoto.',
-          facts: ['Sapaan ramah', 'Atribut brand menyusul permintaan']
-        },
-        {
-          id: 'panggung',
-          place: 'Panggung utama',
-          word: 'PANGGUNG',
-          title: ['Semua ponsel', 'langsung naik.'],
-          text: 'Dua unit menari seirama di bawah satu lampu sorot, mengikuti lagu yang Anda pakai untuk acara.',
-          facts: ['Koreografi mengikuti lagu Anda', '3-5 menit per sesi tampil']
-        },
-        {
-          id: 'kerumunan',
-          place: 'Area publik',
-          word: 'KERUMUNAN',
-          title: ['Anak-anak', 'ikut berjalan.'],
-          text: 'Robodog berjalan pelan di depan pengunjung, berhenti untuk difoto, lalu lanjut. Kerumunan terbentuk tanpa perlu panggung.',
-          facts: ['D1 Pro, 15,5 kg', 'Lari sampai 3,5 m/s']
-        },
-        {
-          id: 'brosur',
-          place: 'Booth pameran',
-          word: 'PAMERAN',
-          title: ['Brosur', 'berpindah tangan.'],
-          text: 'Di booth, robot menyerahkan brosur dan menahan pengunjung lebih lama di depan produk Anda.',
-          facts: ['Host booth sepanjang acara', 'Bergantian dengan tim Anda']
-        }
-      ]
-    },
     // Fleet
+    booking: {
+      title: 'Booking talenta',
+      sub: 'Isi call sheet ini, lalu kirim lewat WhatsApp. Idealnya 7-14 hari sebelum acara.',
+      sheet: 'Call sheet',
+      talent: 'Talenta',
+      date: 'Tanggal acara',
+      city: 'Kota',
+      cityHint: 'Jakarta, Surabaya, Bali, atau kota lain',
+      type: 'Jenis acara',
+      types: ['Pameran', 'Mall', 'Peluncuran produk', 'Acara perusahaan', 'Lainnya'],
+      notes: 'Catatan',
+      notesHint: 'Lagu untuk koreografi, lama tampil, atau hal lain (opsional)',
+      shots: 'Jepretan Anda dari sesi foto',
+      portraits: 'Talenta yang dipilih',
+      send: 'Kirim lewat WhatsApp',
+      pending: 'belum ditentukan',
+      others: (names) => `Butuh unit AgiBot lain? ${names} bisa ditanyakan ketersediaannya.`,
+      othersLink: 'Tanya lewat WhatsApp',
+      othersMessage: 'Halo Robotshow Indonesia, saya ingin tanya ketersediaan unit AgiBot lain untuk event saya.',
+      message: (m) => 'Halo Robotshow Indonesia, saya ingin booking talenta.' + '\nTalenta: ' + m.talent + '\nTanggal acara: ' + m.date + '\nKota: ' + m.city + '\nJenis acara: ' + m.type + (m.notes ? '\nCatatan: ' + m.notes : '')
+    },
+    teaser: {
+      title: 'Teaser RFI',
+      sub: 'Potongan gambar dari video teaser RFI. Klik satu frame, lalu gulir untuk menonton dari detik itu.',
+      subTouch: 'Potongan gambar dari video teaser RFI. Ketuk satu frame, lalu gulir untuk menonton dari detik itu.',
+      pick: (n) => `Tonton dari frame ${n}`,
+      video: 'Video teaser RFI',
+      soundOn: 'Nyalakan suara',
+      soundOff: 'Matikan suara'
+    },
+    talent: {
+      title: 'Daftar talenta',
+      detail: 'Detail',
+      back: 'Kembali',
+      book: (name) => `Booking ${name}`
+    },
     fleet: {
-      title: 'Pilih robot untuk acara Anda.',
-      sub: 'Lima unit AgiBot siap disewa lengkap dengan operator. Geser untuk melihat satu per satu.',
-      prevUnit: 'Unit sebelumnya',
-      nextUnit: 'Unit berikutnya',
-      viewRobot: 'Lihat',
       askRobot: (name) => `Halo Robotshow Indonesia, apakah ${name} bisa disewa untuk event saya?`,
-      moreTitle: 'Unit AgiBot lain, tanya ketersediaannya',
       robots: {
         'a2-ultra': {
           tagline: 'Peluncuran produk dan presentasi',
@@ -151,7 +139,7 @@ export const DICTIONARY = {
     },
     // Lab
     lab: {
-      title: 'Kenali X2 Ultra.',
+      title: 'Ruang casting',
       subDesktop: 'Putar 360°, tarik lengan, kaki, atau kepalanya, atau pilih gerakan di samping.',
       subMobile: 'Geser untuk memutar 360°, ketuk bagian robot, atau pilih gerakan.',
       loading: 'Memuat model 3D',
@@ -252,12 +240,12 @@ export const DICTIONARY = {
   en: {
     // Nav
     nav: {
-      acara: 'Events',
-      armada: 'Fleet',
-      lab: 'Technology',
-      layanan: 'Services',
+      acara: 'Teaser',
+      armada: 'Talent',
+      lab: 'Casting room',
+      layanan: 'Booking',
       faq: 'FAQ',
-      cta: 'Book Now',
+      cta: 'Book the talent',
       skipLink: 'Skip to content',
       menuOpen: 'Open menu',
       menuClose: 'Close menu',
@@ -266,69 +254,57 @@ export const DICTIONARY = {
     },
     // Hero
     hero: {
-      line1: 'Robots that steal',
-      line2: 'the spotlight.',
+      title: 'Robot talent for your event.',
+      cta: 'Book the talent',
+      hint: 'Click to take a photo',
+      hintTouch: 'Tap to take a photo',
+      shots: 'Your shots',
+      alt: 'X2 Ultra in a photo studio',
+      viaWa: 'via WhatsApp',
       sub: 'Rent AgiBot humanoid robots and robodogs for expos, malls, and product launches. Professional operators included at every event.',
       ctaPrice: 'Get price list',
       waMessage: 'Hello Robotshow Indonesia, I would like to check robot rental availability for our event.',
       waPriceMessage: 'Hello Robotshow Indonesia, could you provide the robot rental price list?'
     },
-    // Story
-    story: {
-      srTitle: 'One event night with robots',
-      disclaimer: 'Event atmosphere illustration',
-      chapters: [
-        {
-          id: 'persiapan',
-          place: 'Backstage',
-          word: 'PREPARATION',
-          title: ['Two hours before', 'doors open.'],
-          text: 'Operators unpack flight cases, calibrate joints, verify battery levels, and run rehearsals until every movement is pristine.',
-          facts: ['2 operators per unit', 'Spare batteries on site']
-        },
-        {
-          id: 'sambutan',
-          place: 'Entrance',
-          word: 'GREETING',
-          title: ['First guests', 'greeted by robots.'],
-          text: 'The humanoid unit stands at the entrance, greeting guests warmly, pointing directions, and posing for photo opportunities.',
-          facts: ['Warm greeting', 'Custom brand attire upon request']
-        },
-        {
-          id: 'panggung',
-          place: 'Main stage',
-          word: 'STAGE SHOW',
-          title: ['Every phone', 'immediately lifted.'],
-          text: 'Two units dance in synchronized harmony under spotlight, choreographed to the soundtrack of your event.',
-          facts: ['Choreographed to your soundtrack', '3-5 minutes per performance session']
-        },
-        {
-          id: 'kerumunan',
-          place: 'Public area',
-          word: 'CROWD',
-          title: ['Children follow', 'in delight.'],
-          text: 'The robodog strolls gracefully among visitors, pausing for snapshots then moving forward. An instant crowd magnet without needing a stage.',
-          facts: ['D1 Pro, 15.5 kg', 'Runs up to 3.5 m/s']
-        },
-        {
-          id: 'brosur',
-          place: 'Exhibition booth',
-          word: 'EXPO BOOTH',
-          title: ['Brochures', 'exchanged hands.'],
-          text: 'At the booth, the robot hands out brochures and retains visitors longer in front of your showcase.',
-          facts: ['Booth host throughout the event', 'Rotates seamlessly with your staff']
-        }
-      ]
-    },
     // Fleet
+    booking: {
+      title: 'Book the talent',
+      sub: 'Fill in this call sheet, then send it over WhatsApp. Ideally 7-14 days before the event.',
+      sheet: 'Call sheet',
+      talent: 'Talent',
+      date: 'Event date',
+      city: 'City',
+      cityHint: 'Jakarta, Surabaya, Bali, or another city',
+      type: 'Event type',
+      types: ['Exhibition', 'Mall', 'Product launch', 'Corporate event', 'Other'],
+      notes: 'Notes',
+      notesHint: 'Song for the choreography, show length, or anything else (optional)',
+      shots: 'Your shots from the photo session',
+      portraits: 'Selected talent',
+      send: 'Send via WhatsApp',
+      pending: 'not decided yet',
+      others: (names) => `Need another AgiBot unit? Ask us about ${names}.`,
+      othersLink: 'Ask on WhatsApp',
+      othersMessage: 'Hello Robotshow Indonesia, I would like to ask about the availability of other AgiBot units for our event.',
+      message: (m) => 'Hello Robotshow Indonesia, I would like to book talent.' + '\nTalent: ' + m.talent + '\nEvent date: ' + m.date + '\nCity: ' + m.city + '\nEvent type: ' + m.type + (m.notes ? '\nNotes: ' + m.notes : '')
+    },
+    teaser: {
+      title: 'Teaser RFI',
+      sub: 'Stills from the RFI teaser. Click a frame, then scroll to watch from that moment.',
+      subTouch: 'Stills from the RFI teaser. Tap a frame, then scroll to watch from that moment.',
+      pick: (n) => `Watch from frame ${n}`,
+      video: 'RFI teaser video',
+      soundOn: 'Sound on',
+      soundOff: 'Sound off'
+    },
+    talent: {
+      title: 'Talent roster',
+      detail: 'Details',
+      back: 'Back',
+      book: (name) => `Book ${name}`
+    },
     fleet: {
-      title: 'Choose the robot for your event.',
-      sub: 'Five AgiBot units ready for rent complete with professional operators. Swipe to explore each unit.',
-      prevUnit: 'Previous unit',
-      nextUnit: 'Next unit',
-      viewRobot: 'View',
       askRobot: (name) => `Hello Robotshow Indonesia, is ${name} available for rent for our event?`,
-      moreTitle: 'Other AgiBot units, inquire for availability',
       robots: {
         'a2-ultra': {
           tagline: 'Product launches & keynote presentations',
@@ -393,7 +369,7 @@ export const DICTIONARY = {
     },
     // Lab
     lab: {
-      title: 'Explore X2 Ultra.',
+      title: 'Casting room',
       subDesktop: 'Rotate 360°, drag limbs or head, or trigger poses from the sidebar.',
       subMobile: 'Swipe to rotate 360°, tap robot joints, or choose an animation.',
       loading: 'Loading 3D model',
@@ -494,12 +470,12 @@ export const DICTIONARY = {
   zh: {
     // Nav
     nav: {
-      acara: '活动案例',
-      armada: '智能机队',
-      lab: '核心技术',
-      layanan: '租赁服务',
+      acara: '宣传片',
+      armada: '艺人',
+      lab: '试镜室',
+      layanan: '预约',
       faq: '常见问题',
-      cta: '预约档期',
+      cta: '预约艺人',
       skipLink: '跳转至主要内容',
       menuOpen: '打开菜单',
       menuClose: '关闭菜单',
@@ -508,69 +484,57 @@ export const DICTIONARY = {
     },
     // Hero
     hero: {
-      line1: '成为全场焦点的',
-      line2: '仿生具身机器人。',
+      title: '为您的活动签约机器人艺人。',
+      cta: '预约艺人',
+      hint: '点击拍照',
+      hintTouch: '轻触拍照',
+      shots: '拍摄的照片',
+      alt: '摄影棚中的 X2 Ultra',
+      viaWa: '通过 WhatsApp',
       sub: '面向展会、商场、发布会提供远征AgiBot人形机器人与四足机器狗租赁。每场活动均配备资深现场技术飞手。',
       ctaPrice: '索取报价单',
       waMessage: '您好 Robotshow Indonesia，我想了解活动机器人租赁档期与方案。',
       waPriceMessage: '您好 Robotshow Indonesia，请发送一份机器人租赁价目表。'
     },
-    // Story
-    story: {
-      srTitle: '与机器人共度的璀璨活动之夜',
-      disclaimer: '活动现场氛围效果示意',
-      chapters: [
-        {
-          id: 'persiapan',
-          place: '后台准备区',
-          word: 'PREPARATION',
-          title: ['开门迎客前', '两小时。'],
-          text: '工程师开箱、校准关节自由度、检测动力电池并进行走位联排，确保动作流畅无瑕。',
-          facts: ['每台机器人配备2名专业飞手', '现场常备备用动力电池']
-        },
-        {
-          id: 'sambutan',
-          place: '迎宾入口',
-          word: 'GREETING',
-          title: ['首批贵宾', '由机器人热情迎接。'],
-          text: '人形机器人伫立迎宾处，智能语音问候、礼貌指引动线，并与到场嘉宾亲切合影互动。',
-          facts: ['温和交互问候', '支持品牌标识与专属定制装扮']
-        },
-        {
-          id: 'panggung',
-          place: '主舞台',
-          word: 'STAGE SHOW',
-          title: ['全场手机镜头', '齐刷刷举起。'],
-          text: '两台机器人伴随聚光灯与品牌主题曲同频起舞，高科技震撼编排点燃现场最高潮。',
-          facts: ['根据活动专属曲目定制编舞', '每场展示表演3-5分钟']
-        },
-        {
-          id: 'kerumunan',
-          place: '公共互动区',
-          word: 'CROWD',
-          title: ['引得孩子们', '一路欢呼跟随。'],
-          text: '四足机器狗从容巡游于人群之间，随停摆姿势供观众拍照。无需专门搭台，瞬间聚拢超高人气。',
-          facts: ['D1 Pro，机重15.5 kg', '最高奔跑时速达 3.5 m/s']
-        },
-        {
-          id: 'brosur',
-          place: '展位展台',
-          word: 'EXPO BOOTH',
-          title: ['宣传画册', '在机器人手中传递。'],
-          text: '机器人在展台分发宣传折页，以新奇科技感大幅延长观众驻足时间，助力品牌高效转化。',
-          facts: ['全天候展位科技助手', '与现场工作人员灵活换班协作']
-        }
-      ]
-    },
     // Fleet
+    booking: {
+      title: '预约艺人',
+      sub: '填写这份通告单，然后通过 WhatsApp 发送。最好在活动前 7-14 天预约。',
+      sheet: '通告单',
+      talent: '艺人',
+      date: '活动日期',
+      city: '城市',
+      cityHint: '雅加达、泗水、巴厘岛或其他城市',
+      type: '活动类型',
+      types: ['展会', '商场', '新品发布', '企业活动', '其他'],
+      notes: '备注',
+      notesHint: '编舞用的歌曲、表演时长或其他事项（选填）',
+      shots: '您在拍摄环节拍的照片',
+      portraits: '已选艺人',
+      send: '通过 WhatsApp 发送',
+      pending: '待定',
+      others: (names) => `需要其他 AgiBot 机型？可咨询 ${names} 的档期。`,
+      othersLink: '通过 WhatsApp 咨询',
+      othersMessage: '您好 Robotshow Indonesia，我想咨询其他 AgiBot 机型的活动档期。',
+      message: (m) => '您好 Robotshow Indonesia，我想预约艺人。' + '\n艺人：' + m.talent + '\n活动日期：' + m.date + '\n城市：' + m.city + '\n活动类型：' + m.type + (m.notes ? '\n备注：' + m.notes : '')
+    },
+    teaser: {
+      title: 'Teaser RFI',
+      sub: '摘自 RFI 宣传片的画面。点击任意一帧，然后向下滚动，从那一刻开始观看。',
+      subTouch: '摘自 RFI 宣传片的画面。轻触任意一帧，然后向下滚动，从那一刻开始观看。',
+      pick: (n) => `从第 ${n} 帧开始观看`,
+      video: 'RFI 宣传片视频',
+      soundOn: '打开声音',
+      soundOff: '关闭声音'
+    },
+    talent: {
+      title: '艺人名册',
+      detail: '详情',
+      back: '返回',
+      book: (name) => `预约 ${name}`
+    },
     fleet: {
-      title: '精选专属于您盛会的机型。',
-      sub: '五款远征AgiBot机型现货待命，配备全流程技术团队。滑动探索各个型号规格。',
-      prevUnit: '上一机型',
-      nextUnit: '下一机型',
-      viewRobot: '了解',
       askRobot: (name) => `您好 Robotshow Indonesia，请问 ${name} 在我们活动期间是否有租赁档期？`,
-      moreTitle: '其他 AgiBot 机型，欢迎咨询档期',
       robots: {
         'a2-ultra': {
           tagline: '新品发布会与高规格演讲',
@@ -635,7 +599,7 @@ export const DICTIONARY = {
     },
     // Lab
     lab: {
-      title: '深度解析 X2 Ultra。',
+      title: '试镜室',
       subDesktop: '360°自由旋转，拖拽四肢或头部关节，或点击右侧指令触发特技动作。',
       subMobile: '滑动屏幕360°旋转，轻触机器人关节部件，或选择预设动作。',
       loading: '正在载入 3D 仿真模型',
