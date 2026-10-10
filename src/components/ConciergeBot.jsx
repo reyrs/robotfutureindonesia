@@ -326,6 +326,9 @@ export default function ConciergeBot() {
         role="dialog"
         aria-modal="true"
         aria-label="Concierge Inquiries"
+        data-lenis-prevent
+        onWheel={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
         style={{ display: 'none' }}
       >
         {/* Header */}
@@ -366,7 +369,13 @@ export default function ConciergeBot() {
         </div>
 
         {/* Message Stream */}
-        <div ref={scrollRef} className="rfi-modal-stream">
+        <div
+          ref={scrollRef}
+          className="rfi-modal-stream"
+          data-lenis-prevent
+          onWheel={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
+        >
           {messages.map((m) => (
             <div key={m.id} className={`rfi-msg-row is-${m.sender}`}>
               <div className="rfi-msg-box">
@@ -463,8 +472,8 @@ export default function ConciergeBot() {
         </div>
 
         {/* Suggestion Chips */}
-        <div className="rfi-chips-bar">
-          <div className="rfi-chips-track">
+        <div className="rfi-chips-bar" data-lenis-prevent>
+          <div className="rfi-chips-track" data-lenis-prevent onWheel={(e) => e.stopPropagation()}>
             {dict.chips.map((c) => (
               <button
                 key={c.id}
@@ -572,6 +581,8 @@ export default function ConciergeBot() {
           overflow: hidden;
           font-family: var(--font-display, sans-serif);
           color: #F8FAFC;
+          overscroll-behavior: contain;
+          touch-action: pan-y;
         }
 
         /* MODAL HEAD */
@@ -579,6 +590,7 @@ export default function ConciergeBot() {
           padding: 22px 22px 16px;
           border-bottom: 1px solid rgba(255, 255, 255, 0.07);
           background: rgba(11, 21, 51, 0.5);
+          flex-shrink: 0;
         }
         .rfi-head-top {
           display: flex;
@@ -632,13 +644,17 @@ export default function ConciergeBot() {
 
         /* STREAM */
         .rfi-modal-stream {
-          flex: 1;
+          flex: 1 1 0%;
+          min-height: 0;
           overflow-y: auto;
+          overflow-x: hidden;
+          overscroll-behavior: contain;
+          -webkit-overflow-scrolling: touch;
+          touch-action: pan-y;
           padding: 18px 20px 10px;
           display: flex;
           flex-direction: column;
           gap: 16px;
-          scroll-behavior: smooth;
         }
         .rfi-modal-stream::-webkit-scrollbar {
           width: 4px;
@@ -831,6 +847,7 @@ export default function ConciergeBot() {
         .rfi-chips-bar {
           padding: 8px 16px 10px;
           border-top: 1px solid rgba(255, 255, 255, 0.05);
+          flex-shrink: 0;
         }
         .rfi-chips-track {
           display: flex;
@@ -867,6 +884,7 @@ export default function ConciergeBot() {
           padding: 12px 16px 16px;
           background: rgba(11, 21, 51, 0.45);
           border-top: 1px solid rgba(255, 255, 255, 0.07);
+          flex-shrink: 0;
         }
         .rfi-input-field {
           flex: 1;
