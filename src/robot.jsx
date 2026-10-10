@@ -11,6 +11,7 @@ import Preloader from './components/Preloader';
 import Cursor from './components/Cursor';
 import ScrollProgress from './components/ScrollProgress';
 import PageBackdrop from './components/PageBackdrop';
+import ConciergeBot from './components/ConciergeBot';
 import { RENTABLE } from './data/robots';
 import { LanguageProvider } from './context/LanguageContext';
 
@@ -44,6 +45,7 @@ function RobotEntry({ robot }) {
         <RobotPage robot={robot} />
       </main>
       <Footer />
+      <ConciergeBot />
     </>
   );
 }

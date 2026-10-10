@@ -11,6 +11,7 @@ import TeaserSection from './components/TeaserSection';
 import BookingSection from './components/BookingSection';
 import FaqSection from './components/FaqSection';
 import Footer from './components/Footer';
+import ConciergeBot from './components/ConciergeBot';
 
 import { useLanguage } from './context/LanguageContext';
 
@@ -49,6 +50,7 @@ export default function App() {
         <FaqSection />
       </main>
       <Footer />
+      <ConciergeBot />
     </>
   );
 }

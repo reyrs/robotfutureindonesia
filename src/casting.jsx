@@ -9,6 +9,7 @@ import Footer from './components/Footer';
 import LabSection from './components/LabSection';
 import ScrollProgress from './components/ScrollProgress';
 import PageBackdrop from './components/PageBackdrop';
+import ConciergeBot from './components/ConciergeBot';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -43,6 +44,7 @@ function CastingEntry() {
         <LabSection />
       </main>
       <Footer />
+      <ConciergeBot />
     </>
   );
 }

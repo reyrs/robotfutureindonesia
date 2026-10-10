@@ -13,8 +13,12 @@ dist-ssr
 *.local
 
 # Local dev leftovers
+temp*
 temp_*
+v[0-9]_*
 screen_*.png
+shot_*.png
+*.tmp
 
 # Editor directories and files
 .vscode/*

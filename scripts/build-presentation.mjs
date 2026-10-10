@@ -4,27 +4,62 @@ import path from 'path';
 async function generate() {
   const { default: puppeteer } = await import('puppeteer-core');
   
-  const toBase64 = (file) => {
-    try {
-      const bitmap = fs.readFileSync(file);
-      return 'data:image/png;base64,' + bitmap.toString('base64');
-    } catch {
-      return '';
-    }
-  };
+  const CHROME_PATH = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 
-  const heroImg = toBase64('slide_hero.png');
-  const talentImg = toBase64('slide_talent.png');
-  const teaserImg = toBase64('slide_teaser.png');
-  const bookingImg = toBase64('slide_booking.png');
-  const labImg = toBase64('slide_lab.png');
-  const robotImg = toBase64('slide_robot.png');
+  console.log('Capturing screenshots from dev server...');
+  const browser = await puppeteer.launch({
+    executablePath: CHROME_PATH,
+    headless: 'new',
+    args: ['--no-sandbox', '--disable-dev-shm-usage', '--allow-file-access-from-files']
+  });
+
+  const capturePage = await browser.newPage();
+  await capturePage.setViewport({ width: 1440, height: 900 });
+
+  // 1. Hero
+  await capturePage.goto('http://localhost:5173/', { waitUntil: 'networkidle2' });
+  await new Promise(r => setTimeout(r, 2000));
+  const heroBuffer = await capturePage.screenshot({ encoding: 'base64' });
+  const heroImg = 'data:image/png;base64,' + heroBuffer;
+
+  // 2. Talent
+  await capturePage.evaluate(() => window.__lenis?.scrollTo('#armada', { immediate: true }));
+  await new Promise(r => setTimeout(r, 1500));
+  const talentBuffer = await capturePage.screenshot({ encoding: 'base64' });
+  const talentImg = 'data:image/png;base64,' + talentBuffer;
+
+  // 3. Teaser
+  await capturePage.evaluate(() => window.__lenis?.scrollTo('#acara', { immediate: true }));
+  await new Promise(r => setTimeout(r, 1500));
+  const teaserBuffer = await capturePage.screenshot({ encoding: 'base64' });
+  const teaserImg = 'data:image/png;base64,' + teaserBuffer;
+
+  // 4. Booking
+  await capturePage.evaluate(() => window.__lenis?.scrollTo('#layanan', { immediate: true }));
+  await new Promise(r => setTimeout(r, 1500));
+  const bookingBuffer = await capturePage.screenshot({ encoding: 'base64' });
+  const bookingImg = 'data:image/png;base64,' + bookingBuffer;
+
+  // 5. Casting Lab
+  await capturePage.goto('http://localhost:5173/casting/', { waitUntil: 'networkidle2' });
+  await new Promise(r => setTimeout(r, 2500));
+  const labBuffer = await capturePage.screenshot({ encoding: 'base64' });
+  const labImg = 'data:image/png;base64,' + labBuffer;
+
+  // 6. Robot Page
+  await capturePage.goto('http://localhost:5173/robot/x2-ultra/', { waitUntil: 'networkidle2' });
+  await new Promise(r => setTimeout(r, 2500));
+  const robotBuffer = await capturePage.screenshot({ encoding: 'base64' });
+  const robotImg = 'data:image/png;base64,' + robotBuffer;
+
+  await capturePage.close();
+  console.log('Screenshots captured successfully.');
 
   const html = `<!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Presentasi Website Robotshow.id</title>
+<title>Robotshow.id — Platform Presentation</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
@@ -39,7 +74,7 @@ async function generate() {
   }
   body {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    color: #F2F0EC;
+    color: #F8FAFC;
     background: #0B1533;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
@@ -58,19 +93,19 @@ async function generate() {
   }
 
   .slide-cover {
-    background: radial-gradient(120% 100% at 80% 20%, #1A3FB8 0%, #0B1533 60%, #060B1C 100%);
+    background: radial-gradient(120% 100% at 85% 20%, #16369A 0%, #0B1533 60%, #050A1A 100%);
   }
   .slide-light {
-    background: #F4F3EF;
+    background: #F8F9FA;
     color: #0B1533;
   }
   .slide-blue {
-    background: radial-gradient(100% 90% at 50% 10%, #183CA8 0%, #0B1533 80%);
+    background: radial-gradient(100% 90% at 50% 10%, #153896 0%, #0B1533 80%);
   }
   .slide-dark-grid {
     background: 
-      linear-gradient(rgba(242, 240, 236, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(242, 240, 236, 0.03) 1px, transparent 1px),
+      linear-gradient(rgba(248, 250, 252, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(248, 250, 252, 0.03) 1px, transparent 1px),
       #0B1533;
     background-size: 60px 60px;
   }
@@ -79,41 +114,43 @@ async function generate() {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    border-bottom: 1px solid rgba(242, 240, 236, 0.15);
+    border-bottom: 1px solid rgba(248, 250, 252, 0.14);
     padding-bottom: 24px;
     margin-bottom: 30px;
   }
   .slide-light .slide-header {
-    border-bottom-color: rgba(11, 21, 51, 0.15);
+    border-bottom-color: rgba(11, 21, 51, 0.12);
   }
   .slide-category {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: #C1FF00;
+    color: #38BDF8;
   }
   .slide-light .slide-category {
-    color: #13308F;
+    color: #1E40AF;
   }
   .slide-number {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 15px;
+    font-size: 14px;
     opacity: 0.6;
+    letter-spacing: 0.1em;
   }
   .slide-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid rgba(242, 240, 236, 0.15);
+    border-top: 1px solid rgba(248, 250, 252, 0.14);
     padding-top: 20px;
-    font-size: 14px;
-    opacity: 0.65;
+    font-size: 13px;
+    opacity: 0.6;
     font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.08em;
   }
   .slide-light .slide-footer {
-    border-top-color: rgba(11, 21, 51, 0.15);
+    border-top-color: rgba(11, 21, 51, 0.12);
   }
 
   .title-serif {
@@ -121,7 +158,7 @@ async function generate() {
     font-weight: 700;
   }
   h1 {
-    font-size: 72px;
+    font-size: 76px;
     line-height: 1.05;
     letter-spacing: -0.02em;
     margin-bottom: 24px;
@@ -135,24 +172,27 @@ async function generate() {
   p {
     font-size: 20px;
     line-height: 1.6;
-    opacity: 0.88;
+    opacity: 0.9;
   }
+
   .badge {
     display: inline-block;
-    padding: 6px 16px;
+    padding: 7px 18px;
     border-radius: 999px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
-    background: rgba(193, 255, 0, 0.15);
-    color: #C1FF00;
-    border: 1px solid #C1FF00;
-    margin-bottom: 20px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.08);
+    color: #F8FAFC;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    margin-bottom: 22px;
   }
   .badge-blue {
-    background: rgba(19, 48, 143, 0.12);
-    color: #13308F;
-    border-color: #13308F;
+    background: rgba(30, 64, 175, 0.08);
+    color: #1E40AF;
+    border-color: rgba(30, 64, 175, 0.25);
   }
 
   .content-split {
@@ -161,13 +201,6 @@ async function generate() {
     gap: 60px;
     align-items: center;
     flex: 1;
-  }
-  .content-equal {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 50px;
-    flex: 1;
-    align-items: center;
   }
   .content-three {
     display: grid;
@@ -188,7 +221,7 @@ async function generate() {
     position: relative;
     border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.12);
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.12);
     background: #000;
     height: 580px;
     display: flex;
@@ -202,8 +235,8 @@ async function generate() {
     display: block;
   }
   .card-feature {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.09);
     border-radius: 16px;
     padding: 36px 32px;
     display: flex;
@@ -212,8 +245,8 @@ async function generate() {
   }
   .slide-light .card-feature {
     background: #FFFFFF;
-    border-color: rgba(11, 21, 51, 0.08);
-    box-shadow: 0 12px 32px rgba(11, 21, 51, 0.05);
+    border-color: rgba(11, 21, 51, 0.07);
+    box-shadow: 0 12px 32px rgba(11, 21, 51, 0.04);
   }
   .card-feature h3 {
     font-size: 24px;
@@ -227,12 +260,12 @@ async function generate() {
   .card-feature .num {
     font-family: 'Playfair Display', serif;
     font-style: italic;
-    font-size: 40px;
-    color: #C1FF00;
+    font-size: 38px;
+    color: #38BDF8;
     line-height: 1;
   }
   .slide-light .card-feature .num {
-    color: #13308F;
+    color: #1E40AF;
   }
 
   .bullet-list {
@@ -241,7 +274,7 @@ async function generate() {
   }
   .bullet-list li {
     position: relative;
-    padding-left: 32px;
+    padding-left: 30px;
     margin-bottom: 16px;
     font-size: 18px;
     line-height: 1.5;
@@ -250,11 +283,11 @@ async function generate() {
     content: '→';
     position: absolute;
     left: 0;
-    color: #C1FF00;
+    color: #38BDF8;
     font-weight: 700;
   }
   .slide-light .bullet-list li::before {
-    color: #13308F;
+    color: #1E40AF;
   }
 </style>
 </head>
@@ -264,440 +297,440 @@ async function generate() {
   <div class="slide slide-cover">
     <div class="slide-header" style="border: none;">
       <div class="slide-category">ROBOT FUTURE INDONESIA</div>
-      <div class="slide-number">RESMI &amp; EKSKLUSIF</div>
+      <div class="slide-number">OFFICIAL AGIBOT FLEET</div>
     </div>
     <div style="max-width: 1200px; margin-top: 80px;">
-      <span class="badge">PLATFORM SEWA &amp; SHOWCASE AGIBOT</span>
+      <span class="badge">PLATFORM ARCHITECTURE &amp; DESIGN SYSTEM</span>
       <h1 class="title-serif" style="font-size: 96px; margin-bottom: 24px;">Robotshow.id</h1>
-      <p style="font-size: 32px; font-weight: 300; max-width: 900px; line-height: 1.4; color: rgba(242,240,236,0.9); margin-bottom: 48px;">
-        Presentasi Arsitektur Web, Konsep Desain Editorial, Interaktivitas 3D, dan Katalog Talenta Robot Humanoid.
+      <p style="font-size: 32px; font-weight: 300; max-width: 900px; line-height: 1.4; color: rgba(248,250,252,0.9); margin-bottom: 48px;">
+        Interactive Digital Platform, Editorial Craft, 3D Kinematic Simulation, and AgiBot Humanoid Rental Showcase.
       </p>
-      <div style="display: flex; gap: 40px; font-family: 'JetBrains Mono', monospace; font-size: 16px; opacity: 0.8;">
+      <div style="display: flex; gap: 40px; font-family: 'JetBrains Mono', monospace; font-size: 15px; opacity: 0.85;">
         <div><strong>ARMADA:</strong> AgiBot X2 Ultra, A2 Ultra, A2 Lite, Robodog</div>
-        <div><strong>FORMAT:</strong> Multi-Page SSR / Static Web Application</div>
-        <div><strong>TANGGAL:</strong> Oktober 2026</div>
+        <div><strong>STACK:</strong> React 19 · Vite 8 · Three.js · GSAP Suite</div>
+        <div><strong>VERSION:</strong> 2.0 Production Ready</div>
       </div>
     </div>
     <div class="slide-footer">
-      <span>ROBOTSHOW.ID — DOKUMENTASI LENGKAP PLATFORM</span>
-      <span>HALAMAN 01 / 12</span>
+      <span>ROBOTSHOW.ID — EXECUTIVE PLATFORM DOCUMENTATION</span>
+      <span>PAGE 01 / 12</span>
     </div>
   </div>
 
   <!-- SLIDE 2: EXECUTIVE SUMMARY -->
   <div class="slide slide-dark-grid">
     <div class="slide-header">
-      <div class="slide-category">01 — IKHTISAR &amp; VISI UTAMA</div>
+      <div class="slide-category">01 — EXECUTIVE OVERVIEW &amp; VISION</div>
       <div class="slide-number">02 / 12</div>
     </div>
     <div class="content-split">
       <div>
-        <span class="badge">LATAR BELAKANG &amp; TUJUAN</span>
-        <h2 class="title-serif">Talenta Robot Humanoid untuk Event Masa Depan</h2>
+        <span class="badge">PURPOSE &amp; POSITIONING</span>
+        <h2 class="title-serif">Humanoid Robot Talents for Next-Gen Events</h2>
         <p style="margin-bottom: 24px;">
-          Robotshow.id adalah portal resmi penyewaan robot humanoid berteknologi tinggi di Indonesia untuk kebutuhan <strong>peluncuran produk, expo, pertunjukan panggung, mall festival, dan sambutan tamu VIP</strong>.
+          Robotshow.id is the official digital portal for commercial humanoid robot rentals in Indonesia, engineered specifically for <strong>product launches, international expos, stage choreographies, mall activations, and VIP hospitality</strong>.
         </p>
         <p>
-          Bukan sekadar situs profil biasa, web ini dirancang dengan standar agensi interaktif internasional untuk memberikan kesan pertama yang futuristik, kredibel, dan berkelas tinggi kepada calon klien korporat.
+          Far beyond a generic corporate brochure, the platform delivers an international agency-grade interactive experience that establishes immediate technological credibility for high-profile enterprise clients.
         </p>
         <ul class="bullet-list">
-          <li><strong>Operator Tersertifikasi:</strong> Setiap unit didampingi operator profesional di lokasi.</li>
-          <li><strong>Koreografi Musik:</strong> Robot dapat diprogram menari sesuai lagu atau jingle brand.</li>
-          <li><strong>Jangkauan Luas:</strong> Layanan operasional utama di Jakarta, Surabaya, Bali, dan kota lainnya.</li>
+          <li><strong>Certified Field Operators:</strong> Professional handlers accompany every robot deployed on-site.</li>
+          <li><strong>Custom Musical Choreography:</strong> Synchronization with client brand jingles, dances, or stage tracks.</li>
+          <li><strong>Nationwide Coverage:</strong> Full turnkey logistics operating out of Jakarta, Surabaya, Bali, and across Indonesia.</li>
         </ul>
       </div>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
         <div class="card-feature">
           <div class="num">01</div>
           <h3>Photo Studio Hero</h3>
-          <p>Pengalaman memotret robot interaktif pertama di web dengan pencahayaan flash nyata dan hasil foto polaroid.</p>
+          <p>Tactile interactive photoshoot experience with real-time cursor tracking and physical draggable prints.</p>
         </div>
         <div class="card-feature">
           <div class="num">02</div>
-          <h3>Roster Skala Nyata</h3>
-          <p>Katalog talenta dengan tinggi proporsi asli manusia dan kartu comp cards berteknologi 3D tilt.</p>
+          <h3>Real-Scale Roster</h3>
+          <p>Anatomically accurate humanoid lineup featuring 3D tilting comp cards with flippable datasheets.</p>
         </div>
         <div class="card-feature">
           <div class="num">03</div>
-          <h3>Video Contact Sheet</h3>
-          <p>Pratinjau video aksi panggung dengan transisi pembesaran lensa mulus tanpa reload.</p>
+          <h3>Cinematic Teaser</h3>
+          <p>Curated 16:9 contact sheet with dynamic grease-pencil framing and zero-lag full HD video transitions.</p>
         </div>
         <div class="card-feature">
           <div class="num">04</div>
           <h3>3D Casting Lab</h3>
-          <p>Simulasi persendian URDF dan mimik wajah LED real-time berbasis Three.js di halaman khusus.</p>
+          <p>Independent real-time Three.js URDF joint kinematics and facial LED expression simulator.</p>
         </div>
       </div>
     </div>
     <div class="slide-footer">
-      <span>ROBOTSHOW.ID — ARSITEKTUR PLATFORM</span>
-      <span>HALAMAN 02 / 12</span>
+      <span>ROBOTSHOW.ID — EXECUTIVE OVERVIEW</span>
+      <span>PAGE 02 / 12</span>
     </div>
   </div>
 
   <!-- SLIDE 3: DESIGN SYSTEM & AESTHETICS -->
   <div class="slide slide-light">
     <div class="slide-header">
-      <div class="slide-category">02 — IDENTITAS DESAIN &amp; TIPOGRAFI</div>
+      <div class="slide-category">02 — DESIGN SYSTEM &amp; CRAFT</div>
       <div class="slide-number">03 / 12</div>
     </div>
     <div class="content-split">
       <div>
-        <span class="badge badge-blue">DESIGN SYSTEM &amp; PALET WARNA</span>
-        <h2 class="title-serif">Estetika Editorial Lusion &amp; Akurasi Swiss</h2>
+        <span class="badge badge-blue">REFINED EDITORIAL DIRECTION</span>
+        <h2 class="title-serif">Contemporary Editorial &amp; Swiss Typographic Rigor</h2>
         <p style="margin-bottom: 20px;">
-          Menghindari gaya klise cyberpunk murahan (neon berlebihan &amp; dark mode generik), website ini mengadopsi <strong>arahan seni editorial kontemporer</strong> yang memadukan tipografi serif klasik dengan presisi monospace teknis.
+          Rejecting cliché dark-mode cyberpunk tropes and abrasive neon colors, the design adopts a <strong>prestigious editorial aesthetic</strong> inspired by high-end design houses like Lusion—balancing archival paper surfaces with deep naval tones.
         </p>
         <div style="display: flex; gap: 16px; margin: 32px 0;">
           <div style="background: #0B1533; color: #fff; padding: 20px; border-radius: 12px; flex: 1; text-align: center;">
-            <div style="font-weight: 700; font-size: 18px;">Navy</div>
-            <div style="font-family: 'JetBrains Mono'; font-size: 13px; opacity: 0.8;">#0B1533</div>
+            <div style="font-weight: 700; font-size: 17px;">Deep Navy</div>
+            <div style="font-family: 'JetBrains Mono'; font-size: 13px; opacity: 0.75;">#0B1533</div>
           </div>
-          <div style="background: #F2F0EC; color: #0B1533; border: 1px solid #ccc; padding: 20px; border-radius: 12px; flex: 1; text-align: center;">
-            <div style="font-weight: 700; font-size: 18px;">Paper</div>
-            <div style="font-family: 'JetBrains Mono'; font-size: 13px; opacity: 0.8;">#F2F0EC</div>
+          <div style="background: #F4F3EF; color: #0B1533; border: 1px solid #D1D5DB; padding: 20px; border-radius: 12px; flex: 1; text-align: center;">
+            <div style="font-weight: 700; font-size: 17px;">Archival Paper</div>
+            <div style="font-family: 'JetBrains Mono'; font-size: 13px; opacity: 0.75;">#F4F3EF</div>
           </div>
-          <div style="background: #13308F; color: #fff; padding: 20px; border-radius: 12px; flex: 1; text-align: center;">
-            <div style="font-weight: 700; font-size: 18px;">Electric Blue</div>
-            <div style="font-family: 'JetBrains Mono'; font-size: 13px; opacity: 0.8;">#13308F</div>
+          <div style="background: #153896; color: #fff; padding: 20px; border-radius: 12px; flex: 1; text-align: center;">
+            <div style="font-weight: 700; font-size: 17px;">Studio Blue</div>
+            <div style="font-family: 'JetBrains Mono'; font-size: 13px; opacity: 0.75;">#153896</div>
           </div>
-          <div style="background: #C1FF00; color: #0B1533; padding: 20px; border-radius: 12px; flex: 1; text-align: center;">
-            <div style="font-weight: 700; font-size: 18px;">Acid Lime</div>
-            <div style="font-family: 'JetBrains Mono'; font-size: 13px; opacity: 0.8;">#C1FF00</div>
+          <div style="background: #38BDF8; color: #0B1533; padding: 20px; border-radius: 12px; flex: 1; text-align: center;">
+            <div style="font-weight: 700; font-size: 17px;">Electric Sky</div>
+            <div style="font-family: 'JetBrains Mono'; font-size: 13px; opacity: 0.75;">#38BDF8</div>
           </div>
         </div>
         <p style="font-size: 16px; opacity: 0.7;">
-          Kombinasi warna dirancang untuk memberikan visibilitas tinggi, kontras tajam, serta kenyamanan mata pengguna baik di desktop maupun perangkat mobile.
+          Every color is balanced for extreme readability, WCAG AA compliance, and refined optical contrast on both desktop monitors and OLED mobile displays.
         </p>
       </div>
       <div style="display: flex; flex-direction: column; gap: 20px;">
         <div class="card-feature">
-          <span style="font-family: 'JetBrains Mono'; color: #13308F; font-size: 13px;">DISPLAY HEADINGS</span>
+          <span style="font-family: 'JetBrains Mono'; color: #1E40AF; font-size: 13px;">DISPLAY HEADINGS</span>
           <h3 class="title-serif" style="font-size: 38px; margin: 8px 0;">Bodoni Moda &amp; Playfair</h3>
-          <p>Memberikan kesan mewah, prestisius, dan artistik seperti sampul majalah desain arsitektur internasional.</p>
+          <p>Delivers architectural elegance and authoritative presence akin to an international fashion magazine masthead.</p>
         </div>
         <div class="card-feature">
-          <span style="font-family: 'JetBrains Mono'; color: #13308F; font-size: 13px;">BODY &amp; UI TEXT</span>
+          <span style="font-family: 'JetBrains Mono'; color: #1E40AF; font-size: 13px;">BODY &amp; UI INTERFACE</span>
           <h3 style="font-size: 28px; margin: 8px 0;">Plus Jakarta Sans &amp; Switzer</h3>
-          <p>Huruf sans-serif geometris modern yang bersih dan memiliki keterbacaan optimal pada semua resolusi layar.</p>
+          <p>Clean geometric sans-serif ensuring flawless legibility across compact devices and varied viewing distances.</p>
         </div>
         <div class="card-feature">
-          <span style="font-family: 'JetBrains Mono'; color: #13308F; font-size: 13px;">DATA &amp; SPECS</span>
+          <span style="font-family: 'JetBrains Mono'; color: #1E40AF; font-size: 13px;">TECHNICAL METRICS</span>
           <h3 style="font-family: 'JetBrains Mono'; font-size: 24px; margin: 8px 0;">IBM Plex Mono</h3>
-          <p>Digunakan untuk penandaan teknis (DoF, torsi, tinggi, berat, tanggal, dan nomor indeks bab).</p>
+          <p>Precise monospace voice dedicated to joint degrees of freedom (DoF), torque metrics, dates, and call sheet labels.</p>
         </div>
       </div>
     </div>
     <div class="slide-footer">
-      <span>ROBOTSHOW.ID — DESIGN SYSTEM</span>
-      <span>HALAMAN 03 / 12</span>
+      <span>ROBOTSHOW.ID — DESIGN ARCHITECTURE</span>
+      <span>PAGE 03 / 12</span>
     </div>
   </div>
 
   <!-- SLIDE 4: HERO SECTION -->
   <div class="slide slide-blue">
     <div class="slide-header">
-      <div class="slide-category">03 — SECTION WALKTHROUGH</div>
+      <div class="slide-category">03 — SECTION BREAKDOWN</div>
       <div class="slide-number">04 / 12</div>
     </div>
     <div class="content-split">
       <div>
-        <span class="badge">BERANDA UTAMA</span>
-        <h2 class="title-serif">Hero: Photo-Shoot Studio Interaktif</h2>
+        <span class="badge">LANDING EXPERIENCE</span>
+        <h2 class="title-serif">Hero: Interactive Photo-Shoot Studio</h2>
         <p style="margin-bottom: 20px;">
-          Menampilkan robot humanoid AgiBot X2 Ultra di dalam studio foto profesional. Setiap frame menggunakan render Cycles resolusi tinggi dari CAD resmi pabrikan.
+          Presents the AgiBot X2 Ultra humanoid robot inside a simulated photography studio. Every frame is pre-rendered via Cycles from official factory CAD models.
         </p>
         <ul class="bullet-list">
-          <li><strong>Pointer Head Tracking:</strong> Kepala robot secara cerdas melacak pergerakan mouse pengunjung secara real-time.</li>
-          <li><strong>Studio Flash Photography:</strong> Setiap klik memicu kilatan flash kamera (aman &amp; diatur di bawah batas WCAG 2.3.1), lalu robot berganti pose secara dinamis.</li>
-          <li><strong>Draggable Polaroid Prints:</strong> Foto hasil jepretan otomatis jatuh ke tumpukan polaroid yang bisa ditarik, digeser, dan dilempar bebas dengan inersia fisika.</li>
-          <li><strong>Direct WhatsApp CTA:</strong> Tombol booking instan yang mengarahkan pesan langsung ke tim Robotshow.</li>
+          <li><strong>Pointer Head Tracking:</strong> The robot head fluidly follows visitor mouse coordinates in real time.</li>
+          <li><strong>WCAG-Compliant Studio Flash:</strong> Clicks trigger a controlled studio flash pulse (strictly safety-capped under 2 flashes/sec) as the robot shifts poses.</li>
+          <li><strong>Physics-Driven Draggable Prints:</strong> Captured photographs land in a polaroid pile that visitors can fling around using GSAP Inertia physics.</li>
+          <li><strong>Seamless Direct WhatsApp CTA:</strong> Instant call-to-action routing event inquiries directly to marketing handlers.</li>
         </ul>
       </div>
       <div class="screen-frame">
-        <img src="${heroImg}" alt="Hero Screenshot">
+        <img src="${heroImg}" alt="Hero Section Preview">
       </div>
     </div>
     <div class="slide-footer">
       <span>ROBOTSHOW.ID — HERO SECTION</span>
-      <span>HALAMAN 04 / 12</span>
+      <span>PAGE 04 / 12</span>
     </div>
   </div>
 
   <!-- SLIDE 5: TALENT ROSTER SECTION -->
   <div class="slide slide-dark-grid">
     <div class="slide-header">
-      <div class="slide-category">04 — SECTION WALKTHROUGH</div>
+      <div class="slide-category">04 — SECTION BREAKDOWN</div>
       <div class="slide-number">05 / 12</div>
     </div>
     <div class="content-split">
       <div>
-        <span class="badge">KATALOG ARMADA</span>
-        <h2 class="title-serif">Talent Roster: Skala Nyata &amp; Comp Cards</h2>
+        <span class="badge">FLEET CATALOG</span>
+        <h2 class="title-serif">Talent Roster: True Scale &amp; Comp Cards</h2>
         <p style="margin-bottom: 20px;">
-          Menghadirkan robot selayaknya model profesional dalam format <em>Talent Comp Cards</em>. Setiap model disajikan dengan latar gulungan kertas studio bertingkat saat di-scroll.
+          Showcases robots as professional performance models against seamless paper backdrops that dynamically unroll on vertical scroll.
         </p>
         <ul class="bullet-list">
-          <li><strong>Proporsi Fisik Akurat:</strong> Menampilkan tinggi komparatif robot asli secara visual (X2 Ultra setinggi 131 cm dan A2 Ultra/Lite setinggi 169 cm).</li>
-          <li><strong>Comp Cards Interaktif:</strong> Kartu dapat dimiringkan (*tilt*) mengikuti posisi kursor dengan efek kilau foil (*foil sheen*) pada logo RFI.</li>
-          <li><strong>Flip Card Mode:</strong> Kartu dapat dibalik untuk melihat rincian spesifikasi teknis lengkap, keahlian gerak, dan tautan booking langsung.</li>
-          <li><strong>Filter Navigasi Cepat:</strong> Pengunjung bisa langsung berpindah model robot melalui tab nama di bagian atas.</li>
+          <li><strong>True Anatomical Proportions:</strong> Illustrates authentic physical heights visually (X2 Ultra at 131 cm vs. adult-scale A2 Series at 169 cm).</li>
+          <li><strong>Interactive 3D Comp Cards:</strong> Model cards tilt with mouse movement and feature responsive foil reflections on the RFI crest.</li>
+          <li><strong>Dual-Sided Card Flip:</strong> Flips to reveal detailed engineering specifications (DoF, joint torque, battery duration) and booking triggers.</li>
+          <li><strong>Instant Filter Tabs:</strong> Quick-navigation buttons allowing instant switching between individual humanoid units.</li>
         </ul>
       </div>
       <div class="screen-frame">
-        <img src="${talentImg}" alt="Talent Section Screenshot">
+        <img src="${talentImg}" alt="Talent Section Preview">
       </div>
     </div>
     <div class="slide-footer">
       <span>ROBOTSHOW.ID — TALENT ROSTER</span>
-      <span>HALAMAN 05 / 12</span>
+      <span>PAGE 05 / 12</span>
     </div>
   </div>
 
   <!-- SLIDE 6: TEASER VIDEO SECTION -->
   <div class="slide slide-blue">
     <div class="slide-header">
-      <div class="slide-category">05 — SECTION WALKTHROUGH</div>
+      <div class="slide-category">05 — SECTION BREAKDOWN</div>
       <div class="slide-number">06 / 12</div>
     </div>
     <div class="content-split">
       <div>
-        <span class="badge">DOKUMENTASI EVENT</span>
-        <h2 class="title-serif">Teaser: Contact Sheet &amp; Video Sinematik</h2>
+        <span class="badge">EVENT SHOWCASE</span>
+        <h2 class="title-serif">Teaser: 16:9 Cinematic Video Experience</h2>
         <p style="margin-bottom: 20px;">
-          Menampilkan rekaman video aksi nyata robot di berbagai panggung (Pencak Silat, Pembukaan Mall, Peluncuran Produk, dan Pameran).
+          Documents genuine live stage spectacles—including synchronized Pencak Silat martial arts, mall grand openings, and corporate reveals.
         </p>
         <ul class="bullet-list">
-          <li><strong>Galeri 8 Frame Contact Sheet:</strong> Cuplikan still 16:9 yang mewakili berbagai momen terbaik pertunjukan robot.</li>
-          <li><strong>Lingkaran Pensil Dinamis:</strong> Animasi garis pensil putih (*grease pencil*) yang melingkari frame yang dipilih pengunjung.</li>
-          <li><strong>Transisi Zoom 1:1 Sinematik:</strong> Saat halaman digulir, frame yang dilingkari membesar secara mulus dan langsung bertransformasi menjadi video Full HD 1080p yang berputar otomatis dari detik yang sama.</li>
-          <li><strong>Audio Toggle:</strong> Tombol kontrol suara terintegrasi dengan aksesibilitas ramah pengguna.</li>
+          <li><strong>Curated 8-Frame Contact Sheet:</strong> High-resolution 16:9 widescreen stills capturing signature performance highlights.</li>
+          <li><strong>Dynamic Grease Pencil Loop:</strong> An animated hand-drawn white circle marking the visitor's selected snapshot.</li>
+          <li><strong>Zero-Lag 1:1 Video Zoom:</strong> On scroll, the encircled frame expands seamlessly into a centered 1080p Full HD video playing from the exact second.</li>
+          <li><strong>Integrated Audio Toggle:</strong> Direct mute/unmute control accessible at the bottom-right corner.</li>
         </ul>
       </div>
       <div class="screen-frame">
-        <img src="${teaserImg}" alt="Teaser Section Screenshot">
+        <img src="${teaserImg}" alt="Teaser Section Preview">
       </div>
     </div>
     <div class="slide-footer">
       <span>ROBOTSHOW.ID — TEASER SECTION</span>
-      <span>HALAMAN 06 / 12</span>
+      <span>PAGE 06 / 12</span>
     </div>
   </div>
 
   <!-- SLIDE 7: CALL SHEET BOOKING SECTION -->
   <div class="slide slide-light">
     <div class="slide-header">
-      <div class="slide-category">06 — SECTION WALKTHROUGH</div>
+      <div class="slide-category">06 — SECTION BREAKDOWN</div>
       <div class="slide-number">07 / 12</div>
     </div>
     <div class="content-split">
       <div>
-        <span class="badge badge-blue">INTEGRASI PEMESANAN</span>
-        <h2 class="title-serif">Call Sheet: Booking Instan Terhubung WhatsApp</h2>
+        <span class="badge badge-blue">BOOKING WORKFLOW</span>
+        <h2 class="title-serif">Call Sheet: Production-Grade Booking Flow</h2>
         <p style="margin-bottom: 20px;">
-          Menyulap formulir pemesanan konvensional yang kaku menjadi <strong>Production Call Sheet</strong> interaktif yang menyenangkan dan langsung siap pakai.
+          Re-imagines standard web forms into an authentic <strong>Production Call Sheet</strong>, streamlining event inquiries into immediate WhatsApp conversions.
         </p>
         <ul class="bullet-list">
-          <li><strong>Sinkronisasi Foto Pengunjung:</strong> Hasil jepretan foto polaroid yang diambil pengunjung saat bermain di Hero Section otomatis disematkan di lembar call sheet.</li>
-          <li><strong>Parameter Event Lengkap:</strong> Memilih jenis talenta, tanggal pelaksanaan, kota tujuan (Jakarta, Surabaya, Bali, dll), serta jenis acara.</li>
-          <li><strong>Generator Pesan Otomatis:</strong> Data formulir otomatis di-encode menjadi format pesan WhatsApp terstruktur dan profesional yang langsung dikirimkan ke tim marketing.</li>
+          <li><strong>Visitor Photo Pinning:</strong> Polaroids taken by the visitor during their Hero studio photoshoot automatically attach to the booking sheet.</li>
+          <li><strong>Structured Parameters:</strong> Client selects talent model, event dates, operational hub (Jakarta, Surabaya, Bali, etc.), and event format.</li>
+          <li><strong>Automated Message Encoding:</strong> Converts user inputs into a structured, professional WhatsApp message pre-filled for one-tap sending.</li>
         </ul>
       </div>
       <div class="screen-frame">
-        <img src="${bookingImg}" alt="Booking Section Screenshot">
+        <img src="${bookingImg}" alt="Booking Section Preview">
       </div>
     </div>
     <div class="slide-footer">
       <span>ROBOTSHOW.ID — BOOKING SECTION</span>
-      <span>HALAMAN 07 / 12</span>
+      <span>PAGE 07 / 12</span>
     </div>
   </div>
 
   <!-- SLIDE 8: 3D CASTING LAB -->
   <div class="slide slide-dark-grid">
     <div class="slide-header">
-      <div class="slide-category">07 — FITUR EKSKLUSIF STANDALONE</div>
+      <div class="slide-category">07 — STANDALONE INTERACTIVE SUITE</div>
       <div class="slide-number">08 / 12</div>
     </div>
     <div class="content-split">
       <div>
-        <span class="badge">SIMULASI REAL-TIME THREE.JS</span>
-        <h2 class="title-serif">Ruang Casting 3D Lab (/casting/)</h2>
+        <span class="badge">THREE.JS HARDWARE SIMULATOR</span>
+        <h2 class="title-serif">3D Casting Lab Simulator (/casting/)</h2>
         <p style="margin-bottom: 20px;">
-          Aplikasi simulator interaktif 3D mandiri yang memungkinkan klien menguji coba dan melihat langsung kemampuan mekanis robot AgiBot X2 Ultra sebelum menyewa.
+          A standalone 3D sandbox allowing enterprise clients to inspect joint articulation, kinematic limits, and expressions of the AgiBot X2 Ultra prior to booking.
         </p>
         <ul class="bullet-list">
-          <li><strong>Rigging Persendian URDF Nyata:</strong> Pengunjung dapat mengklik dan menggeser langsung lengan, kepala, torso, dan kaki robot.</li>
-          <li><strong>Presets Emote Gerakan:</strong> Tombol instan untuk pose aksi panggung seperti melambai (*wave*), bersorak (*cheer*), dan menunjuk (*point*).</li>
-          <li><strong>Kendali LED Mata &amp; Logo:</strong> Memilih ragam ekspresi LED mata robot (ramah, fokus, gembira) dan stiker logo dada.</li>
-          <li><strong>Arsitektur Terpisah:</strong> Dipisahkan dari beranda utama untuk menjaga kecepatan muat landing page tetap instan.</li>
+          <li><strong>URDF Real Joint Kinematics:</strong> Interactive drag manipulation across the robot's head, torso, upper arms, wrists, and knees.</li>
+          <li><strong>Choreography Action Presets:</strong> Instant buttons for signature stage routines (wave, cheer, martial arts stance, point).</li>
+          <li><strong>Facial LED Expressions &amp; Branding:</strong> Live toggle of facial LED moods (friendly, alert, neutral) and chest logo decals.</li>
+          <li><strong>Decoupled Performance Architecture:</strong> Isolated route ensuring zero bundle overhead or frame drops on the main landing page.</li>
         </ul>
       </div>
       <div class="screen-frame">
-        <img src="${labImg}" alt="3D Casting Lab Screenshot">
+        <img src="${labImg}" alt="3D Casting Lab Preview">
       </div>
     </div>
     <div class="slide-footer">
       <span>ROBOTSHOW.ID — 3D CASTING LAB</span>
-      <span>HALAMAN 08 / 12</span>
+      <span>PAGE 08 / 12</span>
     </div>
   </div>
 
   <!-- SLIDE 9: INDIVIDUAL ROBOT PAGES -->
   <div class="slide slide-blue">
     <div class="slide-header">
-      <div class="slide-category">08 — DETAIL PRODUK &amp; SEO MULTI-PAGE</div>
+      <div class="slide-category">08 — PRODUCT ARCHITECTURE &amp; SEO</div>
       <div class="slide-number">09 / 12</div>
     </div>
     <div class="content-split">
       <div>
-        <span class="badge">HALAMAN STATIS TERDEDIKASI</span>
-        <h2 class="title-serif">Halaman Detail Robot (/robot/:id/)</h2>
+        <span class="badge">STATIC MULTI-PAGE GENERATION</span>
+        <h2 class="title-serif">Dedicated Robot Pages (/robot/:id/)</h2>
         <p style="margin-bottom: 20px;">
-          Setiap robot rental memiliki halaman web statis khusus (misalnya <code>/robot/x2-ultra/</code>, <code>/robot/a2-lite/</code>) yang siap diindeks Google dan dibagikan ke WhatsApp.
+          Every rentable unit features an independent, static landing page (e.g. <code>/robot/x2-ultra/</code>, <code>/robot/a2-lite/</code>) optimized for search engines and social link previews.
         </p>
         <ul class="bullet-list">
-          <li><strong>Viewer 3D Model Terisolasi:</strong> Pengunjung dapat memutar dan menginspeksi model 3D robot 360 derajat.</li>
-          <li><strong>Counter Spesifikasi Animatif:</strong> Angka spesifikasi (DoF gerak, berat, daya tahan baterai, kecepatan jalan) teranimasi menghitung naik saat halaman dibuka.</li>
-          <li><strong>Rekomendasi Aksi Panggung:</strong> Daftar skenario pertunjukan yang paling ideal untuk tipe robot tersebut.</li>
-          <li><strong>OpenGraph Tags Khusus:</strong> Dilengkapi metadata gambar preview dan judul khusus saat link dikirim lewat chat WhatsApp.</li>
+          <li><strong>Focused 3D Model Viewer:</strong> Dedicated 360-degree orbital inspection of high-fidelity compressed GLB models.</li>
+          <li><strong>Animated Spec Counters:</strong> Hardware telemetry (degrees of freedom, weight, battery capacity, walking speed) count up upon page entry.</li>
+          <li><strong>Tailored Stage S сценаrios:</strong> Curated lists of recommended acts suited to each model's mechanical footprint.</li>
+          <li><strong>Custom OpenGraph Previews:</strong> Unique social banner images and meta descriptions generated for crisp WhatsApp message previews.</li>
         </ul>
       </div>
       <div class="screen-frame">
-        <img src="${robotImg}" alt="Robot Detail Page Screenshot">
+        <img src="${robotImg}" alt="Robot Detail Page Preview">
       </div>
     </div>
     <div class="slide-footer">
       <span>ROBOTSHOW.ID — ROBOT DETAIL PAGES</span>
-      <span>HALAMAN 09 / 12</span>
+      <span>PAGE 09 / 12</span>
     </div>
   </div>
 
   <!-- SLIDE 10: I18N, FAQ & ACCESSIBILITY -->
   <div class="slide slide-light">
     <div class="slide-header">
-      <div class="slide-category">09 — USER EXPERIENCE &amp; ACCESSIBILITY</div>
+      <div class="slide-category">09 — CLIENT EXPERIENCE &amp; INCLUSIVITY</div>
       <div class="slide-number">10 / 12</div>
     </div>
     <div class="content-three">
       <div class="card-feature">
-        <div class="num">ID · EN · ZH</div>
-        <h3>Multi-Bahasa Lengkap</h3>
+        <div class="num">EN · ID · ZH</div>
+        <h3>Trilingual Localization</h3>
         <p style="margin-bottom: 16px;">
-          Website dilengkapi sistem lokalisasi multi-bahasa terintegrasi:
+          Seamless instant language switching across the entire platform:
         </p>
         <ul class="bullet-list">
-          <li><strong>Bahasa Indonesia (ID):</strong> Bahasa utama operasional nasional.</li>
-          <li><strong>English (EN):</strong> Untuk audiens korporat multinasional &amp; ekspatriat.</li>
-          <li><strong>Mandarin (ZH):</strong> Memudahkan komunikasi dengan prinsipal AgiBot &amp; delegasi internasional.</li>
+          <li><strong>English (EN):</strong> Primary standard for multinational corporate clients.</li>
+          <li><strong>Bahasa Indonesia (ID):</strong> Native localization for domestic markets.</li>
+          <li><strong>Simplified Chinese (ZH):</strong> Direct alignment with AgiBot principals and international partners.</li>
         </ul>
       </div>
 
       <div class="card-feature">
         <div class="num">FAQ</div>
-        <h3>Edukasi &amp; FAQ Accordion</h3>
+        <h3>Educational Accordion</h3>
         <p style="margin-bottom: 16px;">
-          Menjawab pertanyaan paling krusial sebelum klien memutuskan menyewa:
+          Proactively resolves critical operational queries before client outreach:
         </p>
         <ul class="bullet-list">
-          <li>Waktu ideal pemesanan (7–14 hari kerja).</li>
-          <li>Protokol keselamatan pengunjung &amp; anak-anak saat atraksi.</li>
-          <li>Sinkronisasi lagu dan tarian brand.</li>
-          <li>Ketahanan baterai dan ketersediaan baterai cadangan di lokasi.</li>
-          <li>Pengiriman aman via <em>flight case</em> khusus.</li>
+          <li>Optimal booking lead times (7–14 days in advance).</li>
+          <li>Audience &amp; children safety protocols during live shows.</li>
+          <li>Brand song synchronization and rehearsals.</li>
+          <li>Hot-swappable battery management on-site.</li>
+          <li>Flight-case freight logistics across Indonesia.</li>
         </ul>
       </div>
 
       <div class="card-feature">
         <div class="num">A11y</div>
-        <h3>Standar Aksesibilitas Tinggi</h3>
+        <h3>Inclusive Accessibility</h3>
         <p style="margin-bottom: 16px;">
-          Menjamin website ramah untuk semua jenis pengunjung dan perangkat:
+          Engineered for diverse devices and accessibility requirements:
         </p>
         <ul class="bullet-list">
-          <li><strong>Reduced Motion:</strong> Menonaktifkan animasi berat jika sistem perangkat meminta hemat daya/sensitif gerak.</li>
-          <li><strong>Skip to Content Link:</strong> Navigasi keyboard cepat untuk pembaca layar (screen reader).</li>
-          <li><strong>Sticky Smart Navbar:</strong> Navigasi otomatis menyembunyikan diri saat scroll ke bawah dan kembali saat scroll ke atas.</li>
+          <li><strong>Reduced Motion Support:</strong> Disables intensive motion for users with vestibular sensitivities.</li>
+          <li><strong>Keyboard &amp; Screen Reader Skip Links:</strong> Direct navigation jumping to main content.</li>
+          <li><strong>Smart Sticky Header:</strong> Context-aware navigation that hides on scroll down and reveals on scroll up.</li>
         </ul>
       </div>
     </div>
     <div class="slide-footer">
-      <span>ROBOTSHOW.ID — UX &amp; AKSESIBILITAS</span>
-      <span>HALAMAN 10 / 12</span>
+      <span>ROBOTSHOW.ID — CLIENT EXPERIENCE</span>
+      <span>PAGE 10 / 12</span>
     </div>
   </div>
 
   <!-- SLIDE 11: TECHNICAL STACK & ARCHITECTURE -->
   <div class="slide slide-dark-grid">
     <div class="slide-header">
-      <div class="slide-category">10 — ARSITEKTUR TEKNOLOGI &amp; PERFORMA</div>
+      <div class="slide-category">10 — TECHNICAL STACK &amp; PERFORMANCE</div>
       <div class="slide-number">11 / 12</div>
     </div>
     <div class="content-four">
       <div class="card-feature">
-        <span class="badge" style="margin-bottom: 12px;">CORE FRAMEWORK</span>
+        <span class="badge" style="margin-bottom: 12px;">CORE FOUNDATION</span>
         <h3 style="font-size: 26px;">React 19 &amp; Vite 8</h3>
-        <p>Arsitektur komponen modern dengan performa kompilasi sub-detik, modul ES murni, dan pemisahan bundle dinamis.</p>
+        <p>Ultra-modern component tree with sub-second HMR compilation, pure ES modules, and dynamic route chunking.</p>
       </div>
 
       <div class="card-feature">
-        <span class="badge" style="margin-bottom: 12px;">ANIMASI PROFESIONAL</span>
-        <h3 style="font-size: 26px;">GSAP Suite + Lenis</h3>
-        <p>GSAP ScrollTrigger, Draggable dengan inersia fisika, serta Lenis 1.3 untuk smooth scroll yang halus di layar 120Hz.</p>
+        <span class="badge" style="margin-bottom: 12px;">MOTION SUITE</span>
+        <h3 style="font-size: 26px;">GSAP &amp; Lenis</h3>
+        <p>GSAP ScrollTrigger, Draggable physics, and Lenis 1.3 delivering silky smooth 120Hz display refresh synchronization.</p>
       </div>
 
       <div class="card-feature">
-        <span class="badge" style="margin-bottom: 12px;">3D WEB ENGINE</span>
-        <h3 style="font-size: 26px;">Three.js + Meshopt</h3>
-        <p>WebGL2 shading, dekoder kompresi Meshopt, orbit controls, dan pipeline konversi URDF persendian asli.</p>
+        <span class="badge" style="margin-bottom: 12px;">3D PIPELINE</span>
+        <h3 style="font-size: 26px;">Three.js &amp; Meshopt</h3>
+        <p>WebGL2 shading, Meshopt compression decoders, orbital camera controls, and factory URDF kinematics parsing.</p>
       </div>
 
       <div class="card-feature">
-        <span class="badge" style="margin-bottom: 12px;">BUILD &amp; KUALITAS</span>
+        <span class="badge" style="margin-bottom: 12px;">DEPLOYMENT &amp; QA</span>
         <h3 style="font-size: 26px;">Oxlint &amp; Multi-Page SSG</h3>
-        <p>0 Lint error, build statis teroptimasi untuk SEO &amp; WhatsApp link previews, dan kompresi aset gambar WebP modern.</p>
+        <p>0 Lint errors, pre-rendered static HTML routes for SEO and WhatsApp previews, and optimized WebP media delivery.</p>
       </div>
     </div>
-    <div style="background: rgba(193, 255, 0, 0.08); border: 1px solid rgba(193, 255, 0, 0.3); border-radius: 12px; padding: 20px 32px; display: flex; justify-content: space-between; align-items: center;">
-      <div style="font-size: 18px;"><strong>Target Skor Performa:</strong> 60 FPS Animasi Konstan Desktop · Waktu Muat Cepat Mobile · Zero Lag</div>
-      <div style="font-family: 'JetBrains Mono'; font-size: 14px; color: #C1FF00;">STATUS: 100% PRODUCTION READY</div>
+    <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 12px; padding: 20px 32px; display: flex; justify-content: space-between; align-items: center;">
+      <div style="font-size: 18px;"><strong>Performance Benchmark:</strong> Sustained 60 FPS Desktop · Sub-Second Mobile Load Times · Zero Cumulative Layout Shift</div>
+      <div style="font-family: 'JetBrains Mono'; font-size: 13px; color: #38BDF8; letter-spacing: 0.1em;">STATUS: 100% PRODUCTION READY</div>
     </div>
     <div class="slide-footer">
-      <span>ROBOTSHOW.ID — TECH STACK</span>
-      <span>HALAMAN 11 / 12</span>
+      <span>ROBOTSHOW.ID — TECHNICAL BENCHMARK</span>
+      <span>PAGE 11 / 12</span>
     </div>
   </div>
 
   <!-- SLIDE 12: CONCLUSION -->
   <div class="slide slide-cover">
     <div class="slide-header">
-      <div class="slide-category">11 — PENUTUP &amp; KESIAPAN</div>
+      <div class="slide-category">11 — STRATEGIC IMPACT &amp; READINESS</div>
       <div class="slide-number">12 / 12</div>
     </div>
-    <div style="max-width: 1100px; margin: auto 0;">
-      <span class="badge">KESIMPULAN &amp; POTENSI BISNIS</span>
-      <h2 class="title-serif" style="font-size: 64px; margin-bottom: 24px;">Siap Menjadi Standar Baru Robot Showcase di Indonesia</h2>
-      <p style="font-size: 24px; line-height: 1.5; margin-bottom: 40px; color: rgba(242, 240, 236, 0.88);">
-        Platform web Robotshow.id memadukan kekuatan teknologi robot humanoid AgiBot dengan pengalaman digital kelas dunia yang memukau. Klien korporat mendapatkan keyakinan penuh akan profesionalisme, kredibilitas, dan kualitas layanan Robot Future Indonesia.
+    <div style="max-width: 1150px; margin: auto 0;">
+      <span class="badge">VALUE PROPOSITION</span>
+      <h2 class="title-serif" style="font-size: 64px; margin-bottom: 24px;">Setting a New Digital Benchmark for Robotics in Indonesia</h2>
+      <p style="font-size: 24px; line-height: 1.5; margin-bottom: 40px; color: rgba(248, 250, 252, 0.9);">
+        Robotshow.id unites world-class AgiBot humanoid engineering with an internationally acclaimed interactive digital showcase—instilling immediate enterprise confidence in Robot Future Indonesia's capabilities.
       </p>
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;">
-        <div style="background: rgba(255,255,255,0.06); padding: 24px; border-radius: 12px;">
-          <div style="color: #C1FF00; font-weight: 700; font-size: 20px; margin-bottom: 8px;">Kredibilitas Tinggi</div>
-          <p style="font-size: 15px;">Desain berstandar internasional membuktikan status RFI sebagai distributor resmi armada AgiBot.</p>
+        <div style="background: rgba(255,255,255,0.05); padding: 26px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+          <div style="color: #38BDF8; font-weight: 700; font-size: 20px; margin-bottom: 8px;">Institutional Trust</div>
+          <p style="font-size: 15px; opacity: 0.85;">Editorial aesthetics position RFI as the undisputed premier distributor of AgiBot robotics.</p>
         </div>
-        <div style="background: rgba(255,255,255,0.06); padding: 24px; border-radius: 12px;">
-          <div style="color: #C1FF00; font-weight: 700; font-size: 20px; margin-bottom: 8px;">Konversi Booking Cepat</div>
-          <p style="font-size: 15px;">Alur interaksi dari melihat foto, memilih talenta, hingga chat WhatsApp terstruktur dan minim hambatan.</p>
+        <div style="background: rgba(255,255,255,0.05); padding: 26px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+          <div style="color: #38BDF8; font-weight: 700; font-size: 20px; margin-bottom: 8px;">Frictionless Conversion</div>
+          <p style="font-size: 15px; opacity: 0.85;">Seamless journey from interactive play and talent exploration to WhatsApp booking in under 60 seconds.</p>
         </div>
-        <div style="background: rgba(255,255,255,0.06); padding: 24px; border-radius: 12px;">
-          <div style="color: #C1FF00; font-weight: 700; font-size: 20px; margin-bottom: 8px;">Siap Dipresentasikan</div>
-          <p style="font-size: 15px;">Materi presentasi ini dapat langsung ditunjukkan kepada pimpinan perusahaan, EO, dan mitra strategis.</p>
+        <div style="background: rgba(255,255,255,0.05); padding: 26px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+          <div style="color: #38BDF8; font-weight: 700; font-size: 20px; margin-bottom: 8px;">Executive Ready</div>
+          <p style="font-size: 15px; opacity: 0.85;">This documentation is structured for immediate presentation to C-level executives, partners, and event organizers.</p>
         </div>
       </div>
     </div>
     <div class="slide-footer">
-      <span>ROBOTSHOW.ID — PRESENTASI SELESAI</span>
-      <span>HALAMAN 12 / 12</span>
+      <span>ROBOTSHOW.ID — PRESENTATION COMPLETE</span>
+      <span>PAGE 12 / 12</span>
     </div>
   </div>
 
@@ -707,21 +740,16 @@ async function generate() {
   fs.writeFileSync('temp_presentation.html', html);
   console.log('HTML presentation written.');
 
-  const browser = await puppeteer.launch({
-    executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe',
-    headless: 'new',
-    args: ['--no-sandbox', '--disable-dev-shm-usage', '--allow-file-access-from-files']
-  });
-  const page = await browser.newPage();
-  await page.setViewport({ width: 1920, height: 1080 });
+  const printPage = await browser.newPage();
+  await printPage.setViewport({ width: 1920, height: 1080 });
   
   const fullPath = 'file:///' + path.resolve('temp_presentation.html').replace(/\\/g, '/');
-  console.log('Loading:', fullPath);
-  await page.goto(fullPath, { waitUntil: 'networkidle2' });
+  console.log('Loading HTML template for print:', fullPath);
+  await printPage.goto(fullPath, { waitUntil: 'networkidle2' });
   await new Promise(r => setTimeout(r, 2000));
 
   const pdfPath = 'c:/codingan/robot/PRESENTASI_WEB_ROBOTSHOW_ID.pdf';
-  await page.pdf({
+  await printPage.pdf({
     path: pdfPath,
     width: '1920px',
     height: '1080px',
@@ -731,13 +759,8 @@ async function generate() {
   console.log('PDF generated at:', pdfPath);
   await browser.close();
 
-  // Clean temporary files
   if (fs.existsSync('temp_presentation.html')) fs.unlinkSync('temp_presentation.html');
-  const tempScreens = ['slide_hero.png', 'slide_talent.png', 'slide_teaser.png', 'slide_booking.png', 'slide_lab.png', 'slide_robot.png'];
-  for (const f of tempScreens) {
-    if (fs.existsSync(f)) fs.unlinkSync(f);
-  }
-  console.log('Cleaned temporary files.');
+  console.log('Done! Generated clean English PDF presentation.');
 }
 
 generate().catch(err => {
