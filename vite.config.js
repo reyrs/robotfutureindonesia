@@ -30,6 +30,8 @@ function robotPages() {
         writeFileSync(join(outDir, 'robot', robot.id, 'index.html'), html)
       }
       rmSync(join(outDir, 'robot.html'))
+      const indexHtml = readFileSync(join(outDir, 'index.html'), 'utf8')
+      writeFileSync(join(outDir, '404.html'), indexHtml)
     }
   }
 }
